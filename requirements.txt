@@ -2,7 +2,9 @@
 # Untuk mesin analisis saja (batch/CI/skrip reproduksi) gunakan
 # requirements-core.txt yang hanya berisi pandas + numpy.
 # TIDAK memerlukan: GDAL, geopandas, shapely, fiona, scipy, PostGIS, Docker.
-# GeoPackage ditulis langsung lewat modul sqlite3 bawaan Python (gpkg_lite.py).
+# GeoPackage ditulis langsung oleh gpkg_lite.py: lewat modul sqlite3 bila ada,
+# dan lewat perakit SQLite murni Python (sqlite_tulis.py) bila tidak - Pyodide
+# yang menopang stlite tidak memuat ekstensi _sqlite3.
 # Regresi Theil-Sen diimplementasikan dengan numpy (robust.py).
 
 streamlit>=1.30

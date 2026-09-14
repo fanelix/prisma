@@ -33,6 +33,8 @@
     import { mount } from "https://cdn.jsdelivr.net/npm/@stlite/browser@1.8.1/build/stlite.js";
 
     mount({
+      // Hanya pandas + numpy. Pyodide TIDAK memuat modul sqlite3, karena itu
+      // GeoPackage ditulis oleh prismacore/sqlite_tulis.py (murni Python).
       requirements: ["pandas", "numpy"],   // streamlit sudah menjadi runtime stlite
       entrypoint: "app.py",
       files: {
@@ -40,6 +42,7 @@
         "prismacore/__init__.py":             { url: "./prismacore/__init__.py" },
         "prismacore/core.py":                 { url: "./prismacore/core.py" },
         "prismacore/robust.py":               { url: "./prismacore/robust.py" },
+        "prismacore/sqlite_tulis.py":         { url: "./prismacore/sqlite_tulis.py" },
         "prismacore/gpkg_lite.py":            { url: "./prismacore/gpkg_lite.py" },
         "prismacore/export.py":               { url: "./prismacore/export.py" },
         "prismacore/konfigurasi_bawaan.json": { url: "./prismacore/konfigurasi_bawaan.json" },

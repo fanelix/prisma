@@ -8,6 +8,12 @@ Dua cara menjalankan:
 Dependensi: streamlit (hanya lokal), pandas, numpy. Tanpa GDAL.
 Data dapat diunggah dari komputer atau diambil dari folder `data/` di repo
 (dibaca lewat raw.githubusercontent, tanpa token dan tanpa API GitHub).
+
+Dua perbedaan runtime yang ditangani berkas ini:
+  * `streamlit run app/app.py` hanya menaruh folder `app/` pada sys.path,
+    sehingga akar repo perlu ditambahkan sendiri agar `prismacore` terlihat.
+  * Pyodide (stlite) tidak punya soket, sehingga `urllib.request` tidak
+    berfungsi; unduhan memakai XMLHttpRequest browser.
 """
 
 from __future__ import annotations
@@ -17,10 +23,24 @@ import io
 import json
 import os
 import shutil
+import sys
 import tempfile
 import zipfile
 from importlib import resources
 from pathlib import Path
+
+# --- pastikan paket `prismacore` dapat diimpor ------------------------------
+# Streamlit hanya menyisipkan folder skrip ke sys.path, bukan direktori kerja,
+# sehingga `streamlit run app/app.py` dari akar repo gagal tanpa langkah ini.
+try:
+    _SINI = Path(__file__).resolve().parent
+except NameError:                                    # pragma: no cover
+    _SINI = Path.cwd()
+for _dasar in (_SINI, *_SINI.parents, Path.cwd(), *Path.cwd().parents):
+    if (_dasar / "prismacore" / "__init__.py").is_file():
+        if str(_dasar) not in sys.path:
+            sys.path.insert(0, str(_dasar))
+        break
 
 import numpy as np
 import pandas as pd
@@ -42,27 +62,96 @@ WARNA = {"P1-PRIORITAS": "#c0272d", "P2-PERHATIAN": "#e08214",
          "P3-PANTAU RUTIN": "#3b7dd8", "P4-STABIL": "#7f8c8d"}
 
 
+def _versi_streamlit() -> tuple[int, ...]:
+    angka: list[int] = []
+    for bagian in str(getattr(st, "__version__", "0")).split("."):
+        digit = "".join(c for c in bagian if c.isdigit())
+        if not digit:
+            break
+        angka.append(int(digit))
+    return tuple(angka)
+
+
+# Streamlit 1.49 menandai `use_container_width` usang dan menggantinya dengan
+# `width="stretch"`; stlite masih memaketkan Streamlit yang lebih lama. Pilih
+# argumen yang dipahami runtime yang sedang berjalan, jangan salah satu saja.
+LEBAR_PENUH: dict = ({"width": "stretch"} if _versi_streamlit() >= (1, 49)
+                     else {"use_container_width": True})
+
+
 @st.cache_data(show_spinner="Menjalankan pipeline…", max_entries=4)
 def _jalankan(payload: list[tuple[str, bytes]], cfg_json: str) -> dict:
     return pc.jalankan(payload, json.loads(cfg_json))
 
 
+DI_PYODIDE = sys.platform == "emscripten"
+
+
+def _unduh(url: str, timeout: int = 120) -> bytes:
+    """Unduh berkas biner, baik di CPython maupun di dalam browser.
+
+    Pyodide tidak memiliki soket: `urllib.request` selalu gagal di sana.
+    Streamlit menjalankan skrip secara sinkron sehingga `fetch` yang asinkron
+    tidak dapat dipakai; XMLHttpRequest sinkron adalah jalan yang tersisa.
+    """
+    if DI_PYODIDE:
+        from js import XMLHttpRequest  # type: ignore[import-not-found]
+
+        xhr = XMLHttpRequest.new()
+        xhr.open("GET", url, False)
+        per_byte = True
+        try:
+            # Petakan tiap byte ke satu karakter. Tanpa ini browser mendekode
+            # respons sebagai UTF-8 dan merusak CSV ber-enkode ISO-8859-1.
+            xhr.overrideMimeType("text/plain; charset=x-user-defined")
+        except Exception:  # noqa: BLE001 - peramban sangat tua
+            per_byte = False
+        xhr.send(None)
+        if xhr.status and int(xhr.status) >= 400:
+            raise OSError(f"HTTP {xhr.status} saat mengambil {url}")
+        teks = xhr.responseText
+        # charset=x-user-defined memetakan byte b >= 0x80 ke U+F700+b, jadi
+        # byte rendah UTF-16LE mengembalikan data aslinya tanpa perulangan
+        # Python per karakter (berkas CSV bisa ratusan ribu karakter).
+        return teks.encode("utf-16-le")[::2] if per_byte else teks.encode("utf-8")
+
+    import urllib.request
+
+    with urllib.request.urlopen(url, timeout=timeout) as r:
+        return r.read()
+
+
 @st.cache_data(show_spinner=False, ttl=600)
 def _daftar_repo() -> list[dict]:
     """Daftar berkas dari data/manifest.json (tanpa API GitHub, tanpa token)."""
-    import urllib.request
     try:
-        with urllib.request.urlopen(URL_REPO + "manifest.json", timeout=20) as r:
-            return json.loads(r.read().decode("utf-8")).get("berkas", [])
+        mentah = _unduh(URL_REPO + "manifest.json", timeout=20)
+        return json.loads(mentah.decode("utf-8")).get("berkas", [])
     except Exception:  # noqa: BLE001 - offline / repo belum punya manifest
         return []
 
 
 @st.cache_data(show_spinner=False, ttl=600)
 def _ambil_repo(nama: str) -> bytes:
-    import urllib.request
-    with urllib.request.urlopen(URL_REPO + nama, timeout=120) as r:
-        return r.read()
+    return _unduh(URL_REPO + nama, timeout=120)
+
+
+def _berkas_paket() -> dict[str, bytes]:
+    """Isi paket `prismacore` untuk disertakan dalam ZIP keluaran.
+
+    Daftar dibaca dari paket yang sedang berjalan, bukan ditulis tetap, agar
+    modul baru tidak pernah tertinggal dari skrip reproduksi.
+    """
+    akar = resources.files("prismacore")
+    try:
+        nama = sorted(p.name for p in akar.iterdir()
+                      if p.name.endswith((".py", ".json")))
+    except (AttributeError, OSError, NotADirectoryError):  # pragma: no cover
+        nama = []
+    if not nama:  # pragma: no cover - paket terkemas dalam zip/wheel
+        nama = ["__init__.py", "core.py", "robust.py", "sqlite_tulis.py",
+                "gpkg_lite.py", "export.py", "konfigurasi_bawaan.json"]
+    return {n: akar.joinpath(n).read_bytes() for n in nama}
 
 
 def _konfigurasi_awal() -> dict:
@@ -105,7 +194,10 @@ else:
         for teks in pilih:
             with st.sidebar:
                 with st.spinner(f"Mengunduh {label[teks]}…"):
-                    payload.append((label[teks], _ambil_repo(label[teks])))
+                    try:
+                        payload.append((label[teks], _ambil_repo(label[teks])))
+                    except Exception as e:  # noqa: BLE001 - jaringan/CORS
+                        st.error(f"Gagal mengunduh {label[teks]}: {e}")
 
 if not payload:
     st.title("Analisis Pemantauan Prisma RTS")
@@ -253,7 +345,7 @@ with t1:
              "d_turunlereng_mm", "d_vertikal_mm", "d_total_3d_mm", "rasio_HV",
              "plunge_deg", "v_turunlereng_mmhari", "delta_v_mmhari", "rezim",
              "t_turunlereng", "koherensi_tetangga", "n_hari", "catatan"]
-    st.dataframe(V[kolom], use_container_width=True, height=460, hide_index=True)
+    st.dataframe(V[kolom], height=460, hide_index=True, **LEBAR_PENUH)
 
     st.caption(
         "**Kelas P1–P4 adalah peringkat relatif di dalam dataset ini, bukan TARP situs.** "
@@ -279,7 +371,7 @@ with t2:
                       f"{info['sisa_rekon_z_mm_sd']:.2f} mm",
                       str(info.get("n_station_reset", 0)),
                       str(info["n_siklus"])]}),
-            hide_index=True, use_container_width=True)
+            hide_index=True, **LEBAR_PENUH)
 
         st.subheader("Koreksi datum")
         if dat.get("koreksi_diterapkan"):
@@ -292,7 +384,7 @@ with t2:
                           f"{dat['vert_mm_per_hari']:+.3f} mm/hari "
                           f"(CI95 {dat['vert_ci'][0]:+.3f}…{dat['vert_ci'][1]:+.3f})",
                           f"{dat['orientasi_median_arcsec']:+.2f}″"]}),
-                hide_index=True, use_container_width=True)
+                hide_index=True, **LEBAR_PENUH)
             if dat["ref_ditolak"]:
                 st.error("Referensi ditolak karena ikut bergerak: "
                          + ", ".join(dat["ref_ditolak"]))
@@ -304,7 +396,7 @@ with t2:
         st.caption("Diurutkan dari yang paling tenang. **Periksa lokasinya** — "
                    "prisma tenang yang berada di dalam timbunan bukan referensi yang sah.")
         if len(saran):
-            st.dataframe(saran, hide_index=True, use_container_width=True)
+            st.dataframe(saran, hide_index=True, **LEBAR_PENUH)
 
         st.subheader("Siklus diurnal")
         d = hasil["diurnal"]
@@ -318,7 +410,7 @@ with t2:
                 "instrumen atau refraksi lateral, bukan atmosfer EDM.")
 
     st.subheader("Log QC")
-    st.dataframe(hasil["log"], use_container_width=True, hide_index=True, height=260)
+    st.dataframe(hasil["log"], hide_index=True, height=260, **LEBAR_PENUH)
 
     st.subheader("Ketersediaan data per hari")
     av = hasil["df"].groupby("hari").point_id.nunique()
@@ -360,7 +452,7 @@ with t4:
                "Peta vektor lengkap dengan panah tersedia di berkas GeoPackage.")
     st.dataframe(m[["point_id", "kelas", "easting", "northing", "rl",
                     "d_total_3d_mm", "v_turunlereng_mmhari"]],
-                 hide_index=True, use_container_width=True, height=240)
+                 hide_index=True, height=240, **LEBAR_PENUH)
 
 # ------------------------------------------------------------------ Unduh
 with t5:
@@ -381,10 +473,8 @@ with t5:
             # dapat dijalankan setelah ZIP diekstrak, tanpa aplikasi ini
             paket = KELUARAN / "prismacore"
             paket.mkdir(exist_ok=True)
-            for nama in ("__init__.py", "core.py", "robust.py", "gpkg_lite.py",
-                         "export.py", "konfigurasi_bawaan.json"):
-                (paket / nama).write_bytes(
-                    resources.files("prismacore").joinpath(nama).read_bytes())
+            for nama, isi in _berkas_paket().items():
+                (paket / nama).write_bytes(isi)
             (KELUARAN / "requirements-core.txt").write_text(
                 'pandas>=2.0\nnumpy>=1.24\n', encoding="utf-8")
 
@@ -403,14 +493,14 @@ with t5:
         t = st.session_state["tag"]
         d1, d2, d3, d4 = st.columns(4)
         d1.download_button("Semua (ZIP)", st.session_state["zip"],
-                           f"prisma_{t}.zip", "application/zip", use_container_width=True)
+                           f"prisma_{t}.zip", "application/zip", **LEBAR_PENUH)
         d2.download_button("Ringkasan CSV", st.session_state["ringkas_csv"],
-                           f"ringkasan_prisma_{t}.csv", "text/csv", use_container_width=True)
+                           f"ringkasan_prisma_{t}.csv", "text/csv", **LEBAR_PENUH)
         d3.download_button("GeoPackage", st.session_state["gpkg"],
                            f"prisma_{t}.gpkg", "application/geopackage+sqlite3",
-                           use_container_width=True)
+                           **LEBAR_PENUH)
         d4.download_button("Skrip Python", st.session_state["skrip"],
-                           f"analisis_{t}.py", "text/x-python", use_container_width=True)
+                           f"analisis_{t}.py", "text/x-python", **LEBAR_PENUH)
 
         st.success("ZIP berisi seluruh keluaran plus paket `prismacore/` dan "
                    "`requirements-core.txt` — skrip reproduksi dapat dijalankan "

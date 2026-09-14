@@ -2,9 +2,17 @@
 gpkg_lite.py — penulis GeoPackage tanpa GDAL / geopandas / fiona
 ================================================================
 GeoPackage pada dasarnya hanyalah basis data SQLite dengan tabel metadata
-tertentu. Modul ini menulisnya langsung memakai `sqlite3` dan `struct` dari
-pustaka standar Python, sehingga aplikasi tidak perlu memasang GDAL
-(±200 MB) hanya untuk mengekspor peta.
+tertentu. Modul ini menulisnya langsung, sehingga aplikasi tidak perlu
+memasang GDAL (±200 MB) hanya untuk mengekspor peta.
+
+Dua jalur penulisan, dipilih otomatis:
+
+* ``sqlite3``  — modul pustaka standar, dipakai bila ada (CPython biasa).
+* ``murni``    — :mod:`prismacore.sqlite_tulis`, perakit berkas SQLite murni
+  Python. Dipakai di Pyodide/stlite (aplikasi di GitHub Pages), yang
+  membangun CPython **tanpa** ekstensi ``_sqlite3``; di sana ``import
+  sqlite3`` gagal dengan ``ModuleNotFoundError``. Impor modul ini karena
+  itu tidak boleh pernah bergantung pada ``sqlite3``.
 
 Mendukung: Point, LineString, Polygon (cincin luar saja).
 SRS      : srs_id -1 = "Undefined cartesian" -> tepat untuk grid tambang lokal.
@@ -15,15 +23,38 @@ Diuji terhadap QGIS 3.x dan pyogrio/GDAL.
 
 from __future__ import annotations
 
-import sqlite3
 import struct
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable, Literal, Sequence
 
+from . import sqlite_tulis
+
+try:                                    # tidak tersedia di Pyodide/stlite
+    import sqlite3
+except ModuleNotFoundError:             # pragma: no cover - bergantung platform
+    sqlite3 = None                      # type: ignore[assignment]
+
+SQLITE3_TERSEDIA = sqlite3 is not None
+
 GeomType = Literal["POINT", "LINESTRING", "POLYGON"]
+Backend = Literal["auto", "sqlite3", "murni"]
 
 APPLICATION_ID = 0x47504B47  # 'GPKG'
 USER_VERSION = 10300         # GeoPackage 1.3
+
+
+def pilih_backend(backend: Backend = "auto") -> str:
+    """Tentukan jalur penulisan; "auto" memakai sqlite3 bila tersedia."""
+    if backend == "auto":
+        return "sqlite3" if SQLITE3_TERSEDIA else "murni"
+    if backend == "sqlite3" and not SQLITE3_TERSEDIA:
+        raise RuntimeError(
+            "modul sqlite3 tidak tersedia pada runtime ini (lazim di "
+            'Pyodide/stlite); pakai backend="murni" atau "auto"')
+    if backend not in ("sqlite3", "murni"):
+        raise ValueError(f"backend tidak dikenal: {backend}")
+    return backend
 
 
 # --------------------------------------------------------------------------
@@ -128,10 +159,77 @@ def _infer_schema(rows: Sequence[dict], skip: set[str]) -> dict[str, str]:
 
 
 # --------------------------------------------------------------------------
+#  Kerangka metadata GeoPackage
+# --------------------------------------------------------------------------
+DDL_SRS = (
+    "CREATE TABLE gpkg_spatial_ref_sys (\n"
+    "  srs_name TEXT NOT NULL, srs_id INTEGER PRIMARY KEY,\n"
+    "  organization TEXT NOT NULL, organization_coordsys_id INTEGER NOT NULL,\n"
+    "  definition TEXT NOT NULL, description TEXT)"
+)
+KOLOM_SRS = ["srs_name", "srs_id", "organization", "organization_coordsys_id",
+             "definition", "description"]
+TIPE_SRS = ["TEXT", "INTEGER", "TEXT", "INTEGER", "TEXT", "TEXT"]
+
+DDL_CONTENTS = (
+    "CREATE TABLE gpkg_contents (\n"
+    "  table_name TEXT NOT NULL PRIMARY KEY, data_type TEXT NOT NULL,\n"
+    "  identifier TEXT UNIQUE, description TEXT DEFAULT '',\n"
+    "  last_change DATETIME NOT NULL DEFAULT\n"
+    "    (strftime('%Y-%m-%dT%H:%M:%fZ','now')),\n"
+    "  min_x DOUBLE, min_y DOUBLE, max_x DOUBLE, max_y DOUBLE,\n"
+    "  srs_id INTEGER,\n"
+    "  CONSTRAINT fk_gc_r_srs_id FOREIGN KEY (srs_id)\n"
+    "    REFERENCES gpkg_spatial_ref_sys(srs_id))"
+)
+KOLOM_CONTENTS = ["table_name", "data_type", "identifier", "description",
+                  "last_change", "min_x", "min_y", "max_x", "max_y", "srs_id"]
+TIPE_CONTENTS = ["TEXT", "TEXT", "TEXT", "TEXT", "DATETIME",
+                 "DOUBLE", "DOUBLE", "DOUBLE", "DOUBLE", "INTEGER"]
+INDEKS_CONTENTS = [("sqlite_autoindex_gpkg_contents_1", ["table_name"]),
+                   ("sqlite_autoindex_gpkg_contents_2", ["identifier"])]
+
+DDL_GEOM_COLS = (
+    "CREATE TABLE gpkg_geometry_columns (\n"
+    "  table_name TEXT NOT NULL, column_name TEXT NOT NULL,\n"
+    "  geometry_type_name TEXT NOT NULL, srs_id INTEGER NOT NULL,\n"
+    "  z TINYINT NOT NULL, m TINYINT NOT NULL,\n"
+    "  CONSTRAINT pk_geom_cols PRIMARY KEY (table_name, column_name),\n"
+    "  CONSTRAINT fk_gc_tn FOREIGN KEY (table_name)\n"
+    "    REFERENCES gpkg_contents(table_name))"
+)
+KOLOM_GEOM_COLS = ["table_name", "column_name", "geometry_type_name", "srs_id",
+                   "z", "m"]
+TIPE_GEOM_COLS = ["TEXT", "TEXT", "TEXT", "INTEGER", "TINYINT", "TINYINT"]
+INDEKS_GEOM_COLS = [("sqlite_autoindex_gpkg_geometry_columns_1",
+                     ["table_name", "column_name"])]
+
+SRS_BAWAAN = [
+    ("Undefined cartesian SRS", -1, "NONE", -1, "undefined",
+     "sistem koordinat kartesian tak terdefinisi"),
+    ("Undefined geographic SRS", 0, "NONE", 0, "undefined",
+     "sistem koordinat geografis tak terdefinisi"),
+    ("WGS 84 geodetic", 4326, "EPSG", 4326,
+     'GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563]],'
+     'PRIMEM["Greenwich",0],UNIT["degree",0.0174532925199433]]', "WGS 84"),
+]
+
+
+def _stempel_waktu() -> str:
+    """Format `last_change` sesuai GeoPackage: ISO-8601 UTC, milidetik."""
+    t = datetime.now(timezone.utc)
+    return f"{t:%Y-%m-%dT%H:%M:%S}.{t.microsecond // 1000:03d}Z"
+
+
+# --------------------------------------------------------------------------
 #  Penulis
 # --------------------------------------------------------------------------
 class GpkgWriter:
     """Penulis GeoPackage minimal.
+
+    Layer dikumpulkan di memori lalu berkas ditulis sekaligus saat `close()`
+    (atau saat blok `with` berakhir), sehingga kedua backend menghasilkan
+    berkas dengan isi yang sama.
 
     Contoh
     ------
@@ -142,15 +240,18 @@ class GpkgWriter:
     """
 
     def __init__(self, path: str | Path, srs_id: int = -1,
-                 srs_wkt: str | None = None, srs_name: str = "Grid tambang lokal"):
+                 srs_wkt: str | None = None, srs_name: str = "Grid tambang lokal",
+                 backend: Backend = "auto"):
         self.path = Path(path)
         self.srs_id = srs_id
         self.srs_wkt = srs_wkt
         self.srs_name = srs_name
+        self.backend = pilih_backend(backend)
+        self._layer: list[dict] = []
+        self._nama_terpakai: set[str] = set()
+        self._tertutup = False
         if self.path.exists():
             self.path.unlink()
-        self.con = sqlite3.connect(self.path)
-        self._init_gpkg()
 
     # -- protokol context manager -----------------------------------------
     def __enter__(self) -> "GpkgWriter":
@@ -158,59 +259,6 @@ class GpkgWriter:
 
     def __exit__(self, *exc) -> None:
         self.close()
-
-    def close(self) -> None:
-        self.con.commit()
-        self.con.close()
-
-    # -- kerangka --------------------------------------------------------
-    def _init_gpkg(self) -> None:
-        c = self.con
-        c.execute(f"PRAGMA application_id = {APPLICATION_ID}")
-        c.execute(f"PRAGMA user_version = {USER_VERSION}")
-        c.executescript(
-            """
-            CREATE TABLE gpkg_spatial_ref_sys (
-              srs_name TEXT NOT NULL, srs_id INTEGER PRIMARY KEY,
-              organization TEXT NOT NULL, organization_coordsys_id INTEGER NOT NULL,
-              definition TEXT NOT NULL, description TEXT);
-
-            CREATE TABLE gpkg_contents (
-              table_name TEXT PRIMARY KEY, data_type TEXT NOT NULL,
-              identifier TEXT UNIQUE, description TEXT DEFAULT '',
-              last_change DATETIME NOT NULL DEFAULT
-                (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
-              min_x DOUBLE, min_y DOUBLE, max_x DOUBLE, max_y DOUBLE,
-              srs_id INTEGER,
-              CONSTRAINT fk_gc_r_srs_id FOREIGN KEY (srs_id)
-                REFERENCES gpkg_spatial_ref_sys(srs_id));
-
-            CREATE TABLE gpkg_geometry_columns (
-              table_name TEXT NOT NULL, column_name TEXT NOT NULL,
-              geometry_type_name TEXT NOT NULL, srs_id INTEGER NOT NULL,
-              z TINYINT NOT NULL, m TINYINT NOT NULL,
-              CONSTRAINT pk_geom_cols PRIMARY KEY (table_name, column_name),
-              CONSTRAINT fk_gc_tn FOREIGN KEY (table_name)
-                REFERENCES gpkg_contents(table_name));
-            """
-        )
-        srs = [
-            ("Undefined cartesian SRS", -1, "NONE", -1, "undefined",
-             "sistem koordinat kartesian tak terdefinisi"),
-            ("Undefined geographic SRS", 0, "NONE", 0, "undefined",
-             "sistem koordinat geografis tak terdefinisi"),
-            ("WGS 84 geodetic", 4326, "EPSG", 4326,
-             'GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563]],'
-             'PRIMEM["Greenwich",0],UNIT["degree",0.0174532925199433]]', "WGS 84"),
-        ]
-        c.executemany("INSERT INTO gpkg_spatial_ref_sys VALUES (?,?,?,?,?,?)", srs)
-        if self.srs_wkt and self.srs_id not in (-1, 0, 4326):
-            c.execute(
-                "INSERT INTO gpkg_spatial_ref_sys VALUES (?,?,?,?,?,?)",
-                (self.srs_name, self.srs_id, "CUSTOM", self.srs_id, self.srs_wkt,
-                 "grid tambang"),
-            )
-        c.commit()
 
     # -- layer -----------------------------------------------------------
     def add_layer(self, name: str, geom_type: GeomType, rows: Iterable[dict],
@@ -220,32 +268,27 @@ class GpkgWriter:
         Geometri: POINT -> (x, y); LINESTRING/POLYGON -> [(x, y), ...]
         Nilai None ditulis sebagai NULL.
         """
+        if self._tertutup:
+            raise RuntimeError("GpkgWriter sudah ditutup")
+        if name in self._nama_terpakai:
+            raise ValueError(f"layer sudah ada: {name}")
         rows = [r for r in rows if r.get(geom_key) is not None]
         if not rows:
             return 0
 
         schema = _infer_schema(rows, skip={geom_key})
         cols = list(schema)
-        ddl = ", ".join(f'"{k}" {schema[k]}' for k in cols)
-        self.con.execute(
-            f'CREATE TABLE "{name}" (fid INTEGER PRIMARY KEY AUTOINCREMENT, '
-            f'{ddl}, "{geom_key}" BLOB)'
-        )
-
-        placeholders = ",".join("?" * (len(cols) + 1))
-        quoted = ", ".join(f'"{k}"' for k in cols)
-        sql = f'INSERT INTO "{name}" ({quoted}, "{geom_key}") VALUES ({placeholders})'
 
         minx = miny = float("inf")
         maxx = maxy = float("-inf")
-        batch = []
+        data = []
         for r in rows:
             g = r[geom_key]
             blob = encode_geometry(geom_type, g, self.srs_id)
             e = _envelope(geom_type, g)
             minx, maxx = min(minx, e[0]), max(maxx, e[1])
             miny, maxy = min(miny, e[2]), max(maxy, e[3])
-            vals = []
+            vals: list[Any] = [None]                 # fid: ditetapkan otomatis
             for k in cols:
                 v = r.get(k)
                 if v is not None and schema[k] == "TEXT" and not isinstance(v, str):
@@ -253,21 +296,103 @@ class GpkgWriter:
                 if isinstance(v, float) and v != v:      # NaN -> NULL
                     v = None
                 vals.append(v)
-            batch.append((*vals, blob))
-        self.con.executemany(sql, batch)
+            vals.append(blob)
+            data.append(tuple(vals))
 
-        self.con.execute(
-            "INSERT INTO gpkg_contents "
-            "(table_name, data_type, identifier, description, min_x, min_y, max_x, max_y, srs_id) "
-            "VALUES (?,'features',?,?,?,?,?,?,?)",
-            (name, name, description, minx, miny, maxx, maxy, self.srs_id),
-        )
-        self.con.execute(
-            "INSERT INTO gpkg_geometry_columns VALUES (?,?,?,?,0,0)",
-            (name, geom_key, geom_type, self.srs_id),
-        )
-        self.con.commit()
-        return len(batch)
+        self._layer.append({
+            "nama": name, "geom_key": geom_key, "geom_type": geom_type,
+            "kolom": cols, "tipe": [schema[k] for k in cols],
+            "baris": data, "deskripsi": description,
+            "env": (minx, miny, maxx, maxy),
+        })
+        self._nama_terpakai.add(name)
+        return len(data)
+
+    # -- perakitan -------------------------------------------------------
+    def _srs_baris(self) -> list[tuple]:
+        srs = list(SRS_BAWAAN)
+        if self.srs_wkt and self.srs_id not in (-1, 0, 4326):
+            srs.append((self.srs_name, self.srs_id, "CUSTOM", self.srs_id,
+                        self.srs_wkt, "grid tambang"))
+        return srs
+
+    def _skema(self) -> list[dict]:
+        """Definisi seluruh tabel, netral terhadap backend."""
+        stempel = _stempel_waktu()
+        kontens, geomcols, tabel = [], [], []
+        for L in self._layer:
+            minx, miny, maxx, maxy = L["env"]
+            kontens.append((L["nama"], "features", L["nama"], L["deskripsi"],
+                            stempel, minx, miny, maxx, maxy, self.srs_id))
+            geomcols.append((L["nama"], L["geom_key"], L["geom_type"],
+                             self.srs_id, 0, 0))
+            ddl = (f'CREATE TABLE "{L["nama"]}" '
+                   f'(fid INTEGER PRIMARY KEY AUTOINCREMENT, '
+                   + ", ".join(f'"{k}" {t}' for k, t in zip(L["kolom"], L["tipe"]))
+                   + f', "{L["geom_key"]}" BLOB)')
+            tabel.append({
+                "nama": L["nama"], "ddl": ddl,
+                "kolom": ["fid"] + L["kolom"] + [L["geom_key"]],
+                "tipe": ["INTEGER"] + L["tipe"] + ["BLOB"],
+                "rowid_kolom": 0, "autoincrement": True,
+                "indeks": [], "baris": L["baris"],
+            })
+
+        kerangka = [
+            {"nama": "gpkg_spatial_ref_sys", "ddl": DDL_SRS, "kolom": KOLOM_SRS,
+             "tipe": TIPE_SRS, "rowid_kolom": 1, "autoincrement": False,
+             "indeks": [], "baris": self._srs_baris()},
+            {"nama": "gpkg_contents", "ddl": DDL_CONTENTS, "kolom": KOLOM_CONTENTS,
+             "tipe": TIPE_CONTENTS, "rowid_kolom": None, "autoincrement": False,
+             "indeks": INDEKS_CONTENTS, "baris": kontens},
+            {"nama": "gpkg_geometry_columns", "ddl": DDL_GEOM_COLS,
+             "kolom": KOLOM_GEOM_COLS, "tipe": TIPE_GEOM_COLS,
+             "rowid_kolom": None, "autoincrement": False,
+             "indeks": INDEKS_GEOM_COLS, "baris": geomcols},
+        ]
+        return kerangka + tabel
+
+    def close(self) -> Path:
+        """Tulis berkas GeoPackage. Aman dipanggil lebih dari sekali."""
+        if self._tertutup:
+            return self.path
+        skema = self._skema()
+        if self.backend == "sqlite3":
+            self._tulis_sqlite3(skema)
+        else:
+            self._tulis_murni(skema)
+        self._tertutup = True
+        return self.path
+
+    def _tulis_sqlite3(self, skema: list[dict]) -> None:
+        con = sqlite3.connect(self.path)
+        try:
+            con.execute(f"PRAGMA application_id = {APPLICATION_ID}")
+            con.execute(f"PRAGMA user_version = {USER_VERSION}")
+            for t in skema:
+                con.execute(t["ddl"])
+                if not t["baris"]:
+                    continue
+                kolom = ", ".join(f'"{k}"' for k in t["kolom"])
+                tanya = ",".join("?" * len(t["kolom"]))
+                con.executemany(
+                    f'INSERT INTO "{t["nama"]}" ({kolom}) VALUES ({tanya})',
+                    t["baris"])
+            con.commit()
+        finally:
+            con.close()
+
+    def _tulis_murni(self, skema: list[dict]) -> None:
+        db = sqlite_tulis.BasisData(application_id=APPLICATION_ID,
+                                    user_version=USER_VERSION)
+        for t in skema:
+            tab = db.tabel(t["nama"], t["ddl"], t["kolom"], t["tipe"],
+                           rowid_kolom=t["rowid_kolom"],
+                           autoincrement=t["autoincrement"])
+            tab.sisip(t["baris"])
+            for nama_ix, kolom_ix in t["indeks"]:
+                tab.tambah_indeks(nama_ix, kolom_ix)
+        db.tulis(self.path)
 
 
 def df_to_rows(df, geom_type: GeomType, geom_builder, kolom: Sequence[str] | None = None
