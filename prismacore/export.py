@@ -1,6 +1,8 @@
 """
 export.py — penulisan keluaran: CSV, GeoPackage, dan skrip Python reproduksi.
-Tanpa geopandas/shapely/GDAL. Hanya pandas + numpy + gpkg_lite (stdlib).
+Tanpa geopandas/shapely/GDAL. Hanya pandas + numpy + gpkg_lite, yang menulis
+GeoPackage lewat modul sqlite3 bila ada dan lewat perakit murni Python bila
+tidak (Pyodide/stlite).
 """
 
 from __future__ import annotations
@@ -141,7 +143,12 @@ def tulis_csv(hasil: dict, outdir: Path, tag: str) -> list[Path]:
 # =============================================================================
 #  GeoPackage
 # =============================================================================
-def tulis_gpkg(hasil: dict, path: Path, cfg: dict) -> Path:
+def tulis_gpkg(hasil: dict, path: Path, cfg: dict, backend: str = "auto") -> Path:
+    """Tulis GeoPackage 6 layer.
+
+    `backend`: "auto" (sqlite3 bila tersedia), "sqlite3", atau "murni"
+    (perakit SQLite murni Python, satu-satunya pilihan di Pyodide/stlite).
+    """
     S = hasil["ringkasan"]
     info = hasil["info"]
     skala = cfg["ekspor"]["skala_vektor"]
@@ -150,7 +157,7 @@ def tulis_gpkg(hasil: dict, path: Path, cfg: dict) -> Path:
 
     tab = tabel_ringkasan(hasil).set_index("kunci")
 
-    with GpkgWriter(path, srs_id=srs, srs_wkt=wkt) as w:
+    with GpkgWriter(path, srs_id=srs, srs_wkt=wkt, backend=backend) as w:
         # 1. titik prisma -------------------------------------------------
         rows = []
         for kunci, r in tab.iterrows():

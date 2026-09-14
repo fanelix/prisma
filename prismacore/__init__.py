@@ -16,7 +16,7 @@ Konfigurasi situs cukup ditulis sebagai JSON (lihat `muat_konfigurasi`):
 """
 
 from .core import CONFIG, VERSI, jalankan, muat_konfigurasi
-from . import core, export, gpkg_lite, robust
+from . import core, export, gpkg_lite, robust, sqlite_tulis
 
 __version__ = VERSI
 
@@ -29,4 +29,5 @@ __all__ = [
     "export",
     "gpkg_lite",
     "robust",
+    "sqlite_tulis",
 ]

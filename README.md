@@ -71,7 +71,8 @@ prisma referensi (panel kiri) → tinjau log QC → unduh CSV/GPKG/skrip.
 ├── prismacore/            paket inti (pandas + numpy)
 │   ├── core.py            mesin analisis (jalankan)
 │   ├── robust.py          Theil–Sen + MAD tanpa scipy
-│   ├── gpkg_lite.py       penulis GeoPackage via sqlite3 bawaan
+│   ├── sqlite_tulis.py    perakit berkas SQLite murni Python (tanpa sqlite3)
+│   ├── gpkg_lite.py       penulis GeoPackage di atas keduanya
 │   ├── export.py          CSV, GPKG, generator skrip reproduksi
 │   └── konfigurasi_bawaan.json
 ├── app/
@@ -83,7 +84,8 @@ prisma referensi (panel kiri) → tinjau log QC → unduh CSV/GPKG/skrip.
 ├── tools/
 │   ├── jalankan_batch.py  CLI untuk Actions
 │   └── buat_data_uji.py   pembangkit data sintetis 3 bulan
-├── tests/                 test_golden, test_gpkg, test_robust
+├── tests/                 test_golden, test_gpkg, test_robust,
+│                          test_sqlite_tulis, test_tanpa_sqlite3, test_aset_stlite
 └── .github/workflows/     analisis.yml, pages.yml, tests.yml
 ```
 
@@ -105,7 +107,7 @@ mengikuti bawaan `prismacore/konfigurasi_bawaan.json`:
 | Workflow | Pemicu | Yang dilakukan |
 |---|---|---|
 | `analisis.yml` | push ke `data/**`, manual | jalankan pipeline → `hasil/<tag>/`, perbarui `data/manifest.json`, commit balik dengan `GITHUB_TOKEN`, unggah artifact 90 hari, tulis ringkasan ke tab Actions |
-| `tests.yml` | push ke `prismacore/**`, `tests/**`, `data/**` | jalankan `pytest` |
+| `tests.yml` | push ke `prismacore/**`, `tests/**`, `data/**`, `tools/**`, `app/**` | jalankan `pytest` |
 | `pages.yml` | push ke `app/**`, `prismacore/**`, `konfigurasi/**` | rakit `_site/` → deploy GitHub Pages |
 
 Aktifkan sekali di **Settings → Pages → Source: GitHub Actions**. Tidak perlu
@@ -128,6 +130,28 @@ Kolom numerik GeoPackage ditulis sebagai `DOUBLE`/`INTEGER` (bukan teks) agar
 simbologi bergradasi dan pengurutan numerik QGIS berfungsi. CRS bawaan
 `srs_id = -1` (*Undefined Cartesian*); **jangan menebak EPSG** — Easting grid
 Candrian tidak sesuai zona UTM manapun.
+
+### GeoPackage tanpa modul `sqlite3`
+
+GeoPackage adalah berkas SQLite, tetapi `sqlite3` bukan modul yang selalu ada:
+Pyodide — penopang stlite, yaitu versi browser aplikasi ini — membangun CPython
+**tanpa** ekstensi `_sqlite3`. Satu `import sqlite3` di tingkat modul karena itu
+cukup untuk menjatuhkan seluruh aplikasi di GitHub Pages sebelum sebaris data
+pun dibaca.
+
+`prismacore/gpkg_lite.py` karena itu memiliki dua jalur penulisan yang dipilih
+sendiri saat dijalankan:
+
+| Backend | Dipakai bila | Isi |
+|---|---|---|
+| `sqlite3` | modul tersedia (CPython biasa, CI, batch) | pernyataan SQL biasa |
+| `murni` | modul tidak ada (Pyodide/stlite) | `prismacore/sqlite_tulis.py` merakit halaman b-tree, rantai overflow, `sqlite_master`, dan indeks implisit langsung sebagai byte |
+
+Keduanya menghasilkan berkas dengan skema dan isi identik — `tests/test_gpkg.py`
+menjalankan seluruh uji pada kedua backend dan membandingkan hasilnya baris per
+baris; `tests/test_sqlite_tulis.py` memakai `sqlite3` CPython sebagai wasit
+(`PRAGMA integrity_check`, `foreign_key_check`, baca ulang, sisip lanjutan).
+Paksa salah satu bila perlu: `tulis_gpkg(hasil, path, cfg, backend="murni")`.
 
 ---
 
