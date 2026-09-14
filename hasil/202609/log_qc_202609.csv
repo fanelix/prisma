@@ -1,0 +1,9 @@
+point_id,waktu,jenis,besaran,satuan,tindakan,catatan
+CND_1403,2026-09-06 10:06:00,gap,92.017,jam,segmen_baru,
+CND_1602,2026-09-02 10:03:00,swap_target,51254.2,mm,segmen_baru,lompatan besar: dugaan salah round list
+CND_1603,2026-09-02 10:04:00,swap_target,41943.689,mm,segmen_baru,lompatan besar: dugaan salah round list
+CND_1504 / CND_1603,,duplikat_target,2.5,mm,ditandai,posisi baseline identik: target ganda atau salah round list
+CND_1505 / CND_1602,,duplikat_target,1.0,mm,ditandai,posisi baseline identik: target ganda atau salah round list
+CND_200_3 / CND_200_8,,duplikat_target,1.118,mm,ditandai,posisi baseline identik: target ganda atau salah round list
+CND_1403,2026-09-01 14:05:00,segmen_pendek,4.0,epoch,dibuang,segmen 0 < 10 epoch
+CND_28,2026-09-06 10:07:00,segmen_pendek,9.0,epoch,dibuang,segmen 0 < 10 epoch
