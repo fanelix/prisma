@@ -14,7 +14,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from gpkg_lite import GpkgWriter
+from .gpkg_lite import GpkgWriter
 
 # =============================================================================
 #  Geometri pembantu (pengganti shapely)
@@ -247,22 +247,32 @@ TEMPLATE = '''#!/usr/bin/env python3
 # =============================================================================
 #  Skrip reproduksi otomatis - {tag}
 #  Dihasilkan : {waktu}
-#  prisma_core: v{versi}
+#  prismacore : v{versi}
 #  Berkas masukan:
 {daftar_berkas}
 #
 #  Cara pakai:
-#    1. letakkan berkas ini bersama prisma_core.py, gpkg_lite.py, export.py
-#    2. letakkan berkas CSV mentah di folder yang sama (atau ubah BERKAS)
-#    3. python {namafile}
+#    1. pip install "pandas>=2.0" "numpy>=1.24"
+#    2. pastikan folder paket `prismacore/` berada di salah satu lokasi:
+#       di samping skrip ini, di akar repo, atau di direktori kerja
+#    3. letakkan berkas CSV mentah seperti pada daftar di atas
+#       (di samping skrip, relatif terhadap akar repo, atau di direktori kerja)
+#    4. python {namafile}
 #
 #  Skrip akan menghasilkan CSV + GPKG yang identik dengan hasil aplikasi,
 #  lalu memverifikasi sendiri melalui blok assert di bagian akhir.
 # =============================================================================
+import sys
 from pathlib import Path
 
-import prisma_core as pc
-from export import tulis_csv, tulis_gpkg
+HERE = Path(__file__).resolve().parent
+for _dasar in (HERE, *HERE.parents, Path.cwd(), *Path.cwd().parents):
+    if (_dasar / "prismacore" / "__init__.py").is_file():
+        sys.path.insert(0, str(_dasar))
+        break
+
+import prismacore as pc
+from prismacore.export import tulis_csv, tulis_gpkg
 
 BERKAS = {berkas!r}
 KELUARAN = Path("keluaran_{tag}")
@@ -274,8 +284,27 @@ KONFIG = {konfig}
 ACUAN = {acuan}
 
 
+def selesaikan_berkas(berkas):
+    """Cari berkas masukan: apa adanya, di samping skrip, di akar repo,
+    atau di subfolder `data/` pada lokasi-lokasi tersebut."""
+    for dasar in (Path("."), HERE, *HERE.parents, Path.cwd()):
+        ditemukan = []
+        for b in berkas:
+            p = Path(b)
+            kandidat = [dasar / p]
+            if not p.is_absolute():
+                kandidat.append(dasar / "data" / p.name)
+            pilih = next((c for c in kandidat if c.is_file()), None)
+            if pilih is None:
+                break
+            ditemukan.append(pilih)
+        else:
+            return [str(p) for p in ditemukan]
+    return [str(Path(b)) for b in berkas]
+
+
 def main() -> None:
-    hasil = pc.jalankan(BERKAS, KONFIG)
+    hasil = pc.jalankan(selesaikan_berkas(BERKAS), KONFIG)
 
     KELUARAN.mkdir(exist_ok=True)
     csv_paths = tulis_csv(hasil, KELUARAN, "{tag}")

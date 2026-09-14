@@ -1,15 +1,16 @@
 """
-prisma_core.py — mesin analisis pemantauan prisma RTS
-=====================================================
-Dependensi: pandas, numpy, robust, gpkg_lite. Tanpa scipy, tanpa GDAL.
+core.py — mesin analisis pemantauan prisma RTS
+==============================================
+Dependensi: pandas, numpy (robust, gpkg_lite internal). Tanpa scipy, tanpa GDAL.
 
 Dirancang untuk arsip hingga 3 bulan: segmentasi otomatis per prisma,
 deteksi setup ulang stasiun, validasi prisma referensi, dan estimator
 kecepatan yang sadar-gap.
 
 Pemanggilan tunggal:
-    hasil = jalankan(["Candrian_Sep.csv"], CONFIG)
-    tulis_semua(hasil, "keluaran/")
+    import prismacore
+    hasil = prismacore.jalankan(["data/Candrian_Sep_w1_w2_2026.csv"])
+    hasil = prismacore.jalankan(berkas, prismacore.muat_konfigurasi("konfigurasi/candrian.json"))
 """
 
 from __future__ import annotations
@@ -19,45 +20,55 @@ import io
 import json
 import re
 from datetime import datetime
+from importlib import resources
 from pathlib import Path
 from typing import Any, Sequence
 
 import numpy as np
 import pandas as pd
-import robust as rb
+
+from . import robust as rb
 
 VERSI = "1.0.0"
+
 
 # =============================================================================
 #  KONFIGURASI
 # =============================================================================
-CONFIG: dict[str, Any] = {
-    "proyek": {"nama": "Pemantauan Prisma RTS", "crs_id": -1, "crs_wkt": None},
-    "masukan": {"pemisah": ";", "enkode": ["ISO-8859-1", "utf-8", "cp1252"],
-                "format_waktu": "%d/%m/%Y %H:%M", "cycle_gap_menit": 20},
-    "geometri": {"k_refraksi": 0.13, "radius_bumi_m": 6371000.0,
-                 "orientasi_lompatan_arcsec": 2.0},
-    "qc": {"dup_jarak_m": 0.5, "swap_jarak_m": 0.10, "step_mm": 20.0,
-           "step_sigma": 6.0, "step_jendela_jam": 24, "reinstall_mm": 50.0,
-           "reinstall_sigma": 5.0, "step_ambang_maks_mm": 60.0,
-           "segmen_dari_loncatan": False},
-    "segmentasi": {"gap_segmen_jam": 72, "baseline_n_epoch": 6,
-                   "cakupan_min": 0.60, "min_epoch_segmen": 10},
-    "dekomposisi": {"n_tetangga": 7},
-    "datum": {"referensi": [], "auto_referensi": False, "auto_jumlah": 3,
-              "koreksi_orientasi": True, "ref_batas_mm_hari": 0.15},
-    "agregasi": {"min_bacaan_harian": 4},
-    "tren": {"jendela_bergulir_hari": 7, "min_hari_tren": 4,
-             "changepoint_min_hari": 5, "changepoint_perbaikan": 0.25,
-             "iv_wajib_akselerasi": True, "iv_v_min": 0.5},
-    "skor": {"bobot": {"mag": 0.24, "vel": 0.24, "acc": 0.18,
-                       "sig": 0.14, "vert": 0.12, "coh": 0.08},
-             "bagi": {"mag": 16.0, "vel": 1.3, "acc": 0.35,
-                      "sig": 8.0, "vert": 10.0, "coh": 1.0},
-             "ambang": {"P1": 52, "P2": 35, "P3": 18},
-             "aktif_jam": 12, "terputus_jam": 48},
-    "ekspor": {"skala_vektor": 1000, "buffer_zona_m": 25},
-}
+def _gabung_dalam(dasar: dict, tambahan: dict) -> dict:
+    """Gabung dua dict secara rekursif; nilai di `tambahan` menang."""
+    for k, v in tambahan.items():
+        if isinstance(v, dict) and isinstance(dasar.get(k), dict):
+            _gabung_dalam(dasar[k], v)
+        else:
+            dasar[k] = v
+    return dasar
+
+
+def _muat_bawaan() -> dict[str, Any]:
+    with (resources.files(__package__) / "konfigurasi_bawaan.json").open(
+            "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+CONFIG: dict[str, Any] = _muat_bawaan()
+
+
+def muat_konfigurasi(berkas: str | Path | None = None,
+                     timpa: dict[str, Any] | None = None) -> dict[str, Any]:
+    """Konfigurasi bawaan, digabung (rekursif) dengan berkas JSON dan/atau dict.
+
+    Berkas `konfigurasi/*.json` cukup memuat kunci yang ingin diubah — kunci
+    lain tetap mengikuti bawaan. Contoh isi `konfigurasi/candrian.json`:
+        {"datum": {"referensi": ["CND_30002", "CND_30003", "CND_30004"]}}
+    """
+    cfg = _muat_bawaan()
+    if berkas is not None:
+        with open(berkas, "r", encoding="utf-8") as f:
+            _gabung_dalam(cfg, json.load(f))
+    if timpa:
+        _gabung_dalam(cfg, timpa)
+    return cfg
 
 KOLOM_WAJIB = ["Point ID", "Time", "Hz [dms]", "V [dms]", "D [m]",
                "Target Easting [m]", "Target Northing [m]", "Target Elevation [m]",
@@ -180,9 +191,14 @@ def geometri(df: pd.DataFrame, cfg: dict, cat: list) -> tuple[pd.DataFrame, dict
              "ditandai", f"lompatan konstanta orientasi pada siklus {c}")
 
     k, R = cfg["geometri"]["k_refraksi"], cfg["geometri"]["radius_bumi_m"]
-    z_rec = st.st_h + df.d * np.cos(np.radians(df.v)) + (df.d ** 2) * (1 - k) / (2 * R)
+    # Kolom "Horz Distance [m]" adalah jarak horizontal hasil hitung instrumen
+    # (sudah termasuk koreksi sudut vertikal), jadi ia acuan yang benar untuk
+    # sisa rekonstruksi. Bila kolom tidak ada, jatuh kembali ke d·sin(V).
+    horiz = (df.horz_dist if df.horz_dist.notna().all()
+             else df.d * np.sin(np.radians(df.v)))
+    z_rec = st.st_h + df.d * np.cos(np.radians(df.v)) + (horiz ** 2) * (1 - k) / (2 * R)
     sisa_z = (df.z - z_rec) * 1000
-    sisa_h = (np.hypot(dE, dN) - df.d * np.sin(np.radians(df.v))) * 1000
+    sisa_h = (np.hypot(dE, dN) - horiz) * 1000
 
     info = {"stasiun_e": float(st.st_e), "stasiun_n": float(st.st_n),
             "stasiun_h": float(st.st_h),

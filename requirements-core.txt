@@ -1,0 +1,5 @@
+# Analisis Prisma RTS — dependensi inti (mesin analisis + batch + CI).
+# Cukup pandas + numpy: tanpa streamlit, tanpa scipy, tanpa GDAL.
+# Dipakai oleh GitHub Actions (analisis.yml, tests.yml) dan skrip reproduksi.
+pandas>=2.0
+numpy>=1.24

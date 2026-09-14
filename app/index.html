@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Analisis Prisma RTS</title>
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@stlite/browser@1.8.1/build/stlite.css" />
+  <style>
+    body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+    .muat { max-width: 40rem; margin: 12vh auto; padding: 0 1.5rem; color: #31333f; }
+    .muat h1 { font-size: 1.6rem; margin-bottom: .25rem; }
+    .muat p { color: #555; line-height: 1.5; }
+    .muat .bar { height: 6px; border-radius: 3px; background: #e6e8eb;
+                 overflow: hidden; margin: 1.25rem 0; }
+    .muat .bar span { display: block; height: 100%; width: 35%;
+                      background: #ff4b4b; animation: geser 1.4s ease-in-out infinite; }
+    @keyframes geser { 0% { margin-left: -35%; } 100% { margin-left: 100%; } }
+  </style>
+</head>
+<body>
+  <div id="root">
+    <div class="muat">
+      <h1>Analisis Pemantauan Prisma RTS</h1>
+      <p>Menyiapkan Python (Pyodide) dan pandas di dalam browser…</p>
+      <div class="bar"><span></span></div>
+      <p>Muat pertama memerlukan 30–60 detik (±20 MB, di-cache setelahnya).
+         Seluruh proses berjalan di browser Anda; data tidak dikirim ke mana pun.</p>
+    </div>
+  </div>
+
+  <script type="module">
+    import { mount } from "https://cdn.jsdelivr.net/npm/@stlite/browser@1.8.1/build/stlite.js";
+
+    mount({
+      requirements: ["pandas", "numpy"],   // streamlit sudah menjadi runtime stlite
+      entrypoint: "app.py",
+      files: {
+        "app.py":                             { url: "./app.py" },
+        "prismacore/__init__.py":             { url: "./prismacore/__init__.py" },
+        "prismacore/core.py":                 { url: "./prismacore/core.py" },
+        "prismacore/robust.py":               { url: "./prismacore/robust.py" },
+        "prismacore/gpkg_lite.py":            { url: "./prismacore/gpkg_lite.py" },
+        "prismacore/export.py":               { url: "./prismacore/export.py" },
+        "prismacore/konfigurasi_bawaan.json": { url: "./prismacore/konfigurasi_bawaan.json" },
+        "konfigurasi/candrian.json":          { url: "./konfigurasi/candrian.json" },
+      },
+    }, document.getElementById("root"));
+  </script>
+</body>
+</html>

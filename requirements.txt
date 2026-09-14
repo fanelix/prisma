@@ -1,5 +1,6 @@
-# Analisis Prisma RTS - dependensi
-# Semuanya gratis, sumber terbuka, dan berupa wheel pip biasa.
+# Analisis Prisma RTS - dependensi aplikasi lokal (Streamlit).
+# Untuk mesin analisis saja (batch/CI/skrip reproduksi) gunakan
+# requirements-core.txt yang hanya berisi pandas + numpy.
 # TIDAK memerlukan: GDAL, geopandas, shapely, fiona, scipy, PostGIS, Docker.
 # GeoPackage ditulis langsung lewat modul sqlite3 bawaan Python (gpkg_lite.py).
 # Regresi Theil-Sen diimplementasikan dengan numpy (robust.py).
@@ -7,7 +8,3 @@
 streamlit>=1.30
 pandas>=2.0
 numpy>=1.24
-
-# Total unduhan ~250 MB (streamlit menarik pyarrow dan altair).
-# Mesin analisis (prisma_core.py) sendiri hanya butuh pandas + numpy,
-# sehingga skrip reproduksi dapat dijalankan tanpa memasang streamlit.

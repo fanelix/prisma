@@ -1,0 +1,58 @@
+name: Analisis data
+
+on:
+  push:
+    paths:
+      - "data/**"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: analisis-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  analisis:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements-core.txt
+
+      - name: Pasang dependensi inti (tanpa streamlit)
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-core.txt
+
+      - name: Jalankan pipeline batch
+        run: |
+          python tools/jalankan_batch.py \
+            --config konfigurasi/candrian.json \
+            --data data/ \
+            --keluar hasil/
+
+      - name: Unggah artifact (retensi terpisah dari repo)
+        uses: actions/upload-artifact@v4
+        with:
+          name: hasil-analisis
+          path: hasil/
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Commit balik hasil/ dan manifest
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add hasil data/manifest.json
+          if git diff --cached --quiet; then
+            echo "Tidak ada perubahan untuk di-commit."
+          else
+            git commit -m "Analisis otomatis: hasil/ + manifest data"
+            git push
+          fi

@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+_site/
+data_uji_3bulan.csv
+keluaran_*/

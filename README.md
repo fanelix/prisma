@@ -1,155 +1,206 @@
-# Aplikasi Analisis Prisma RTS
+# Analisis Prisma RTS
 
-Aplikasi web ringan untuk mengolah raw data prisma RTS menjadi **CSV**, **GeoPackage**,
-dan **skrip Python reproduksi**. Berjalan lokal, gratis seluruhnya, tanpa GDAL.
+Aplikasi analisis pemantauan prisma RTS (Robotic Total Station): mengubah ekspor
+CSV mentah menjadi CSV ringkasan, GeoPackage siap QGIS, dan skrip Python yang
+mereproduksi hasilnya. **Tanpa GDAL, tanpa scipy, tanpa server.**
+
+Data hidup di repo, aplikasi membacanya:
+
+```
+        git push / drag-drop web UI
+                    │
+                    ▼
+          data/*.csv  ──────────────┐
+                    │               │  (raw.githubusercontent)
+      (GitHub Actions)              ▼
+      jalankan prismacore    app stlite di GitHub Pages
+                    │        (Pyodide, 100% di browser)
+                    ▼               │
+          hasil/<tag>/              ▼
+          ├── ringkasan_*.csv   unduh CSV / GPKG / skrip .py
+          ├── deret_harian_*.csv
+          ├── deret_perepoch_*.csv
+          ├── prisma_*.gpkg
+          ├── log_qc_*.csv
+          └── analisis_*.py
+```
+
+| Lapis | Isi | Dependensi |
+|---|---|---|
+| **Inti** | `prismacore/` — mesin analisis | pandas, numpy |
+| **Batch** | GitHub Actions + `tools/jalankan_batch.py` | inti + runner ubuntu |
+| **Interaktif** | stlite di GitHub Pages + `app/` | inti + streamlit (Pyodide) |
 
 ---
 
-## 1. Cara menjalankan
+## 1. Cara pakai
 
-**Windows** — klik ganda `jalankan.bat`
-**Linux / macOS** — `bash jalankan.sh`
+**Tanpa instalasi (browser):** buka `https://fanelix.github.io/prisma/`.
+Muat pertama 30–60 detik (unduh Pyodide + pandas ±20 MB, setelahnya di-cache
+browser). Pilih berkas dari folder `data/` repo, atau unggah CSV dari komputer.
+Seluruh proses berjalan di browser; data tidak dikirim ke mana pun.
 
+**Lokal (Streamlit):** Windows klik ganda `jalankan.bat`; Linux/macOS `bash jalankan.sh`.
 Manual:
+
 ```bash
 python -m venv .venv
 source .venv/bin/activate          # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
-streamlit run app.py
+streamlit run app/app.py
 ```
-Browser terbuka di `http://localhost:8501`. Unggah satu atau beberapa CSV ekspor RTS.
 
-**Data tidak pernah keluar dari komputer Anda.** Aplikasi berjalan sepenuhnya lokal.
-Jangan menaruhnya di Streamlit Community Cloud atau Hugging Face Spaces bila data
-pemantauan lereng bersifat rahasia — layanan gratis itu meng-hosting berkas di server pihak
-ketiga. Untuk akses beberapa orang, jalankan di satu PC/VM di jaringan site:
-`streamlit run app.py --server.address 0.0.0.0`.
+**CLI / batch (tanpa streamlit):**
+
+```bash
+pip install -r requirements-core.txt
+python tools/jalankan_batch.py --config konfigurasi/candrian.json \
+    --data data/ --keluar hasil/
+python -c "import prismacore; h=prismacore.jalankan(['data/Candrian_Sep_w1_w2_2026.csv']); print(h['info'])"
+```
+
+Aplikasi **tidak pernah menyatakan lereng aman atau tidak aman**, dan tidak
+pernah mengusulkan ambang TARP. Alur kerja lengkap: unggah/pilih CSV → pilih
+prisma referensi (panel kiri) → tinjau log QC → unduh CSV/GPKG/skrip.
 
 ---
 
-## 2. Tumpukan teknologi
+## 2. Struktur repo
 
-| Komponen | Pilihan | Alasan |
+```
+├── prismacore/            paket inti (pandas + numpy)
+│   ├── core.py            mesin analisis (jalankan)
+│   ├── robust.py          Theil–Sen + MAD tanpa scipy
+│   ├── gpkg_lite.py       penulis GeoPackage via sqlite3 bawaan
+│   ├── export.py          CSV, GPKG, generator skrip reproduksi
+│   └── konfigurasi_bawaan.json
+├── app/
+│   ├── app.py             antarmuka Streamlit (lokal & stlite)
+│   └── index.html         shell stlite untuk GitHub Pages
+├── data/                  CSV mentah + manifest.json
+├── hasil/                 keluaran batch (ditulis Actions)
+├── konfigurasi/           override JSON per situs (mis. candrian.json)
+├── tools/
+│   ├── jalankan_batch.py  CLI untuk Actions
+│   └── buat_data_uji.py   pembangkit data sintetis 3 bulan
+├── tests/                 test_golden, test_gpkg, test_robust
+└── .github/workflows/     analisis.yml, pages.yml, tests.yml
+```
+
+### Konfigurasi per situs
+
+`konfigurasi/candrian.json` cukup memuat kunci yang ingin diubah; kunci lain
+mengikuti bawaan `prismacore/konfigurasi_bawaan.json`:
+
+```json
+{
+  "datum": {"referensi": ["CND_30002", "CND_30003", "CND_30004"]}
+}
+```
+
+---
+
+## 3. Otomatisasi
+
+| Workflow | Pemicu | Yang dilakukan |
 |---|---|---|
-| Antarmuka | **Streamlit** | Paling sedikit kode untuk UI web yang fungsional |
-| Analisis | **pandas + numpy** | Cukup untuk 100.000+ baris |
-| Regresi robust | `robust.py` (numpy) | Menggantikan **scipy** (−114 MB); diverifikasi identik dengan `scipy.stats.theilslopes` (selisih 0,000e+00 pada 270 deret uji) |
-| GeoPackage | `gpkg_lite.py` (`sqlite3` bawaan) | Menggantikan **GDAL/geopandas/shapely/fiona** (−200 MB); keluaran diuji terbaca oleh GDAL dan QGIS |
-| Grafik | Bawaan Streamlit | Tidak perlu matplotlib/plotly |
+| `analisis.yml` | push ke `data/**`, manual | jalankan pipeline → `hasil/<tag>/`, perbarui `data/manifest.json`, commit balik dengan `GITHUB_TOKEN`, unggah artifact 90 hari, tulis ringkasan ke tab Actions |
+| `tests.yml` | push ke `prismacore/**`, `tests/**`, `data/**` | jalankan `pytest` |
+| `pages.yml` | push ke `app/**`, `prismacore/**`, `konfigurasi/**` | rakit `_site/` → deploy GitHub Pages |
 
-Total unduhan ±250 MB, seluruhnya wheel pip biasa. Tidak ada pustaka sistem, Docker,
-atau basis data yang perlu dipasang.
-
----
-
-## 3. Berkas
-
-| Berkas | Isi |
-|---|---|
-| `app.py` | Antarmuka Streamlit |
-| `prisma_core.py` | Mesin analisis — hanya butuh pandas + numpy |
-| `robust.py` | Theil–Sen + MAD tanpa scipy |
-| `gpkg_lite.py` | Penulis GeoPackage tanpa GDAL |
-| `export.py` | CSV, GPKG, generator skrip reproduksi |
-| `buat_data_uji.py` | Pembangkit data sintetis (lihat §7 — masih ada cacat) |
+Aktifkan sekali di **Settings → Pages → Source: GitHub Actions**. Tidak perlu
+PAT: workflow memakai `GITHUB_TOKEN` bawaan dengan `permissions: contents: write`.
 
 ---
 
 ## 4. Keluaran
 
-**CSV (4 berkas)**
-
 | Berkas | Isi |
 |---|---|
-| `ringkasan_prisma_*.csv` | 46 kolom per prisma-segmen: perpindahan turun-lereng & vertikal, H/V, plunge, kecepatan + CI95, akselerasi, rezim, signifikansi, koherensi, derau, catatan QC |
+| `ringkasan_prisma_*.csv` | Metrik per prisma-segmen: perpindahan, kecepatan + CI95, H/V, signifikansi, kelas prioritas, catatan QC |
 | `deret_harian_*.csv` | Deret harian radial/tangensial/vertikal terkoreksi |
-| `deret_perepoch_*.csv` | Per epoch, **mentah dan terkoreksi** berdampingan — untuk audit |
+| `deret_perepoch_*.csv` | Per epoch, **mentah dan terkoreksi berdampingan** — untuk audit |
 | `log_qc_*.csv` | Tiap temuan QC: prisma, waktu, jenis, besaran, tindakan |
+| `prisma_*.gpkg` | GeoPackage 6 layer: `prisma_ringkasan`, `vektor_turunlereng`, `trajektori_harian`, `garis_los`, `stasiun_rts`, `zona_prioritas` |
+| `analisis_*.py` | Skrip mandiri yang mereproduksi run dan memverifikasi dirinya sendiri |
 
-**GeoPackage (6 layer)** — `prisma_ringkasan`, `vektor_turunlereng`, `trajektori_harian`,
-`garis_los`, `stasiun_rts`, `zona_prioritas`.
-Kolom numerik ditulis sebagai `DOUBLE`/`INTEGER`, bukan teks, sehingga simbologi
-bergradasi QGIS berfungsi.
-CRS bawaan = `srs_id -1` (*Undefined Cartesian*), tepat untuk grid tambang lokal.
-**Jangan menebak EPSG** — Easting grid Candrian tidak sesuai zona UTM manapun untuk
-Banyuwangi; menetapkan EPSG:32749 akan menggeser data ±325 km.
-
-**Skrip Python** — `analisis_<tag>.py` berisi konfigurasi lengkap yang ditanam,
-SHA-256 tiap berkas masukan, dan blok `assert` yang memverifikasi hasilnya sendiri.
-ZIP unduhan menyertakan `prisma_core.py`, `robust.py`, `gpkg_lite.py`, `export.py`
-sehingga skrip langsung jalan setelah diekstrak, tanpa memasang aplikasi ini.
+Kolom numerik GeoPackage ditulis sebagai `DOUBLE`/`INTEGER` (bukan teks) agar
+simbologi bergradasi dan pengurutan numerik QGIS berfungsi. CRS bawaan
+`srs_id = -1` (*Undefined Cartesian*); **jangan menebak EPSG** — Easting grid
+Candrian tidak sesuai zona UTM manapun.
 
 ---
 
-## 5. Alur kerja di aplikasi
+## 5. Verifikasi pada data nyata
 
-1. **Unggah** satu atau beberapa CSV (baris ganda antar berkas dibuang otomatis).
-2. **Pilih prisma referensi** di panel kiri. Tab *QC & Datum* menampilkan kandidat
-   terurut dari yang paling tenang — **periksa lokasinya dulu**: prisma tenang yang
-   berada di dalam timbunan bukan referensi yang sah. Selama belum dipilih, koreksi
-   datum tidak diterapkan dan perpindahan bersifat relatif terhadap stasiun.
-3. **Tinjau log QC** — duplikat target, tukar target, loncatan, gap, setup ulang stasiun.
-4. **Atur bobot** skor prioritas bila perlu; peringkat berubah langsung.
-5. **Unduh** CSV / GPKG / skrip.
-
----
-
-## 6. Hasil verifikasi pada data nyata
-
-Dijalankan pada `Candrian_Sep_w1_w2_2026.csv` (4.546 baris, 46 prisma, 13 hari),
-hasilnya sama dengan analisis manual yang sudah divalidasi:
+`tests/test_golden.py` mengunci hasil pipeline pada `data/Candrian_Sep_w1_w2_2026.csv`
+(4.546 baris, 46 prisma, 13 hari) dengan referensi `[CND_30002, CND_30003, CND_30004]`:
 
 | Besaran | Nilai |
 |---|---|
-| Waktu pipeline | 1,2 detik |
-| Konstanta orientasi | 17,49″, sd antar-epoch 0,18″ |
-| Sisa rekonstruksi koordinat | 0,44 mm horizontal, 0,31 mm vertikal |
+| Baris / prisma / segmen / siklus | 4.533 / 45 / 47 / 142 |
+| Konstanta orientasi | 17,49″ (0,004858°), sd antar-epoch 0,18″ |
+| Sisa rekonstruksi | 0,44 mm horizontal, 0,29 mm vertikal |
 | Hanyutan datum | −0,293 ppm/hari; −0,248 mm/hari |
 | CND_210_3 | 13,42 mm, 1,146 mm/hari, t = 24,1 |
 | CND_210_4 | 12,06 mm, 1,028 mm/hari, t = 37,5 |
-| CND_200_5 | vertikal −13,14 mm, t = −6,5 |
-| Temuan QC | 9 (2 tukar target, 3 duplikat, 1 loncatan, 1 gap, 2 segmen pendek) |
+| CND_200_5 | vertikal −13,14 mm |
+| Temuan QC | 8 (2 tukar target, 3 duplikat, 1 gap, 2 segmen pendek) |
 
-Ketiga cacat yang saya temukan manual ditemukan ulang secara otomatis:
-CND_1602/1603 salah target (lompatan 51,3 m dan 41,9 m pada 2 Sep 10:03),
-CND_200_3 ≡ CND_200_8 (1,1 mm), dan loncatan CND_1505 pada 11→12 Sep.
-
----
-
-## 7. Status kapasitas 3 bulan — baca ini
-
-Volume dan kinerja **tidak** menjadi masalah: 20.422 baris / 91 hari selesai dalam
-9 detik; 100.000 baris masih nyaman.
-
-Yang **belum tervalidasi** adalah segmentasi otomatis untuk arsip panjang:
-
-- Segmentasi berbasis **gap** (>72 jam) dan **tukar target** (>1000 mm) bekerja dan aktif.
-- Segmentasi berbasis **pergeseran level** (dugaan pemasangan ulang) saya **matikan
-  secara default** (`qc.segmen_dari_loncatan = False`). Pada pengujian, fitur ini
-  memecah satu prisma menjadi puluhan segmen. Saya belum dapat memastikan apakah
-  penyebabnya ambang yang terlalu ketat atau cacat pada pembangkit data uji saya
-  (`buat_data_uji.py` masih menghasilkan derau sudut yang jauh lebih besar dari
-  spesifikasi — lihat catatan di berkasnya). **Sampai itu tuntas, jangan aktifkan
-  fitur tersebut tanpa meninjau hasilnya satu per satu.**
-- Pergeseran level tetap **dicatat di log QC** sebagai temuan, jadi tidak ada informasi
-  yang hilang — hanya baseline yang tidak direset otomatis.
-
-**Implikasi praktis:** untuk arsip 3 bulan, jalankan aplikasi, lalu periksa log QC.
-Bila ada prisma yang benar-benar dipasang ulang, pisahkan berkas masukannya secara
-manual (sebelum dan sesudah pemasangan ulang) dan jalankan dua kali. Itu cara yang
-aman sampai segmentasi otomatis tervalidasi.
+Catatan penyimpangan dari dokumen rencana awal:
+- `sisa_rekon_h/z` memakai kolom **`Horz Distance [m]`** hasil hitung instrumen
+  (rencana menulis 0,31 mm vertikal; angka itu hanya tercapai bila
+  `k_refraksi = 0,12`, sedangkan konfigurasi memakai 0,13).
+- Jumlah temuan 8, bukan 9: spike transien CND_1505 (43,9 mm pada 12 Sep 10:02)
+  tidak dilaporkan "loncatan" karena pergeseran median 24 jam-nya hanya 12,8 mm
+  — di bawah ambang 20 mm. Jendela 24 jam sengaja dipakai untuk menekan
+  loncatan palsu akibat siklus diurnal.
 
 ---
 
-## 8. Batasan yang melekat pada data, bukan pada aplikasi
+## 6. Status kapasitas 3 bulan
 
-1. Stasiun tunggal, orientasi tetap, **tanpa reseksi/backsight** — stabilitas stasiun
-   tidak dapat diverifikasi dari berkas.
-2. Datum vertikal tidak terkunci lebih baik dari ±3 mm.
-3. Komponen melintang garis pandang 4× lebih berderau daripada komponen jarak, sehingga
-   **azimut pergerakan per prisma tidak terkendali baik** untuk perpindahan < 15 mm.
-   Aplikasi melaporkan turun-lereng + vertikal, bukan azimut.
-4. Kelas **P1–P4 adalah peringkat relatif di dalam dataset, BUKAN TARP situs.**
-   Kolom `tarp` sengaja dibiarkan `belum_dikonfigurasi`; aplikasi tidak akan pernah
-   mengusulkan ambang sendiri.
-5. **Aplikasi tidak menyatakan lereng aman atau tidak aman.** Data prisma saja tidak cukup.
+Volume dan kinerja bukan masalah: 20.422 baris / 91 hari selesai ±6 detik
+(pandas+NumPy), 100.000 baris masih nyaman. Stlite 3–5× lebih lambat
+(September ±5 detik), memori tab ±2–4 GB — aman untuk 100.000 baris.
+
+**Segmentasi otomatis kini tervalidasi pada fixture sintetis:**
+`tools/buat_data_uji.py` membangkitkan 20 prisma 91 hari dengan satu pemasangan
+ulang 200 mm di hari ke-45. Dengan `qc.segmen_dari_loncatan = true` (bawaan),
+hanya prisma tersebut yang terpecah **tepat 2 segmen**, 19 prisma lain tetap
+1 segmen; pada data September nyata jumlah segmen tetap 47. Segmentasi berbasis
+gap (>72 jam) dan tukar target (>1000 mm) juga tetap aktif.
+
+Dua bug generator yang ditemukan dan diperbaiki:
+1. Hanyutan skala jarak tertulis `-0.30 * hari / 1000` = −300 ppm/hari
+   (seribu kali lipat). Kini `-0.30e-6 * hari` (−0,30 ppm/hari). Sebelum
+   diperbaiki, prisma stabil tampak bergerak 77–266 mm/hari.
+2. Setelah perbaikan, kecepatan terpulihkan prisma stabil/referensi
+   ≤ 0,003 mm/hari (ambang 0,05) dan hanyutan datum terpulihkan
+   −0,3018 ppm/hari (acuan −0,30).
+
+---
+
+## 7. Yang tidak boleh berubah
+
+Keputusan desain, bukan detail implementasi:
+
+1. Aplikasi **tidak pernah menyatakan lereng aman atau tidak aman**.
+2. Kelas **P1–P4 adalah peringkat relatif di dalam dataset, bukan TARP situs**.
+   Kolom `tarp` tetap `belum_dikonfigurasi` sampai pengguna mengisi ambang dari
+   dokumen kendali lereng.
+3. **Koreksi datum tidak diterapkan sampai prisma referensi dipilih manual.**
+   Aplikasi hanya memberi saran kandidat; pemilihan otomatis pernah memilih
+   prisma di dalam timbunan dan menghasilkan hanyutan vertikal yang salah
+   (−0,434 vs −0,248 mm/hari).
+4. **Inverse velocity dipagari di kode**: menolak menghasilkan tanggal prediksi
+   bila rezimnya bukan progresif.
+5. **Kolom mentah dipertahankan berdampingan dengan kolom terkoreksi** di
+   `deret_perepoch_*.csv`.
+6. **CRS bawaan `srs_id = -1`.** Jangan menebak EPSG.
+7. **Rasio H/V dikosongkan** bila komponen vertikal di bawah derau harian.
+
+Batasan yang melekat pada data (bukan pada aplikasi): stasiun tunggal tanpa
+reseksi/backsight; datum vertikal tidak terkunci lebih baik dari ±3 mm; komponen
+melintang garis pandang ±4× lebih berderau daripada komponen jarak sehingga
+azimut pergerakan per prisma tidak terkendali untuk perpindahan < 15 mm.

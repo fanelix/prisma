@@ -86,7 +86,9 @@ def polar(e, n, z):
     return (az - ORIENT) % 360, v, d, hd
 
 
-def buat(hari: int = 91, per_hari: int = 12, seed: int = 42) -> pd.DataFrame:
+def buat(hari: int = 91, per_hari: int = 12, seed: int = 42,
+         rotasi_arcsec: float = 4.0, v_term_arcsec: float = 2.0,
+         ppm_per_hari: float = -0.30) -> pd.DataFrame:
     rng = np.random.default_rng(seed)
     t0 = pd.Timestamp("2026-07-01 00:00")
     rows = []
@@ -97,9 +99,9 @@ def buat(hari: int = 91, per_hari: int = 12, seed: int = 42) -> pd.DataFrame:
             hari_f = hh + ep / per_hari
             jam = t.hour
             # sistematik: rotasi termal pada sudut, hanyutan skala pada jarak
-            rot = np.radians(4.0 * np.sin((jam - 8) / 24 * 2 * np.pi) / 3600)
-            v_term = 2.0 * np.sin((jam - 9) / 24 * 2 * np.pi) / 3600
-            ppm = -0.30 * hari_f / 1000
+            rot = np.radians(rotasi_arcsec * np.sin((jam - 8) / 24 * 2 * np.pi) / 3600)
+            v_term = v_term_arcsec * np.sin((jam - 9) / 24 * 2 * np.pi) / 3600
+            ppm = ppm_per_hari * 1e-6 * hari_f
 
             for pid, e0, n0, z0, grp in PRISMA:
                 if grp == "atrisi" and hari_f > hari * 0.45:
@@ -154,9 +156,18 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--hari", type=int, default=91)
     ap.add_argument("--per-hari", type=int, default=12)
+    ap.add_argument("--seed", type=int, default=42)
+    ap.add_argument("--rotasi-arcsec", type=float, default=4.0,
+                    help="Amplitudo rotasi termal sudut (0 = matikan)")
+    ap.add_argument("--v-term-arcsec", type=float, default=2.0,
+                    help="Amplitudo termal vertikal (0 = matikan)")
+    ap.add_argument("--ppm-per-hari", type=float, default=-0.30,
+                    help="Hanyutan skala jarak jarak-jauh (0 = matikan)")
     ap.add_argument("--keluaran", default="data_uji_3bulan.csv")
     a = ap.parse_args()
-    df = buat(a.hari, a.per_hari)
+    df = buat(a.hari, a.per_hari, a.seed,
+              rotasi_arcsec=a.rotasi_arcsec, v_term_arcsec=a.v_term_arcsec,
+              ppm_per_hari=a.ppm_per_hari)
     Path(a.keluaran).write_bytes(
         df.to_csv(sep=";", index=False, lineterminator="\r\n").encode("ISO-8859-1"))
     print(f"{a.keluaran}: {len(df):,} baris, {df['Point ID'].nunique()} prisma, "

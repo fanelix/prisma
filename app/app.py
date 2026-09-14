@@ -1,26 +1,39 @@
 """
-app.py — antarmuka web Streamlit untuk analisis prisma RTS.
+app.py — antarmuka Streamlit / stlite untuk analisis prisma RTS.
 
-Menjalankan:  streamlit run app.py
-Dependensi :  streamlit, pandas, numpy  (lihat requirements.txt)
+Dua cara menjalankan:
+  1. Lokal :  streamlit run app/app.py
+  2. GitHub Pages (stlite, 100% di browser): app/index.html
+
+Dependensi: streamlit (hanya lokal), pandas, numpy. Tanpa GDAL.
+Data dapat diunggah dari komputer atau diambil dari folder `data/` di repo
+(dibaca lewat raw.githubusercontent, tanpa token dan tanpa API GitHub).
 """
 
 from __future__ import annotations
 
 import copy
-import hashlib
 import io
 import json
+import os
+import shutil
 import tempfile
 import zipfile
+from importlib import resources
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 import streamlit as st
 
-import prisma_core as pc
-from export import tabel_ringkasan, tulis_csv, tulis_gpkg, tulis_skrip
+import prismacore as pc
+from prismacore.export import tabel_ringkasan, tulis_csv, tulis_gpkg, tulis_skrip
+
+# --- alamat data repo (ubah bila repo/akun berbeda; dapat di-override env) ---
+REPO = "fanelix/prisma"
+URL_REPO = os.environ.get(
+    "PRISMA_URL_DATA", f"https://raw.githubusercontent.com/{REPO}/main/data/")
+KELUARAN = Path(tempfile.gettempdir()) / "keluaran"
 
 st.set_page_config(page_title="Analisis Prisma RTS", layout="wide",
                    initial_sidebar_state="expanded")
@@ -34,22 +47,72 @@ def _jalankan(payload: list[tuple[str, bytes]], cfg_json: str) -> dict:
     return pc.jalankan(payload, json.loads(cfg_json))
 
 
+@st.cache_data(show_spinner=False, ttl=600)
+def _daftar_repo() -> list[dict]:
+    """Daftar berkas dari data/manifest.json (tanpa API GitHub, tanpa token)."""
+    import urllib.request
+    try:
+        with urllib.request.urlopen(URL_REPO + "manifest.json", timeout=20) as r:
+            return json.loads(r.read().decode("utf-8")).get("berkas", [])
+    except Exception:  # noqa: BLE001 - offline / repo belum punya manifest
+        return []
+
+
+@st.cache_data(show_spinner=False, ttl=600)
+def _ambil_repo(nama: str) -> bytes:
+    import urllib.request
+    with urllib.request.urlopen(URL_REPO + nama, timeout=120) as r:
+        return r.read()
+
+
+def _konfigurasi_awal() -> dict:
+    """Konfigurasi bawaan, ditimpa konfigurasi situs bila berkasnya tersedia."""
+    for jalur in ("konfigurasi/candrian.json", "./konfigurasi/candrian.json"):
+        try:
+            return pc.muat_konfigurasi(jalur)
+        except (FileNotFoundError, OSError):
+            continue
+    return copy.deepcopy(pc.CONFIG)
+
+
 # =============================================================================
-#  SIDEBAR
+#  SIDEBAR — SUMBER DATA
 # =============================================================================
 st.sidebar.title("Analisis Prisma RTS")
-st.sidebar.caption(f"prisma_core v{pc.VERSI} · tanpa GDAL")
+st.sidebar.caption(f"prismacore v{pc.VERSI} · tanpa GDAL · tanpa server")
 
-unggah = st.sidebar.file_uploader(
-    "Berkas CSV ekspor RTS", type=["csv"], accept_multiple_files=True,
-    help="Boleh lebih dari satu berkas (mis. ekspor per bulan). "
-         "Baris ganda antar berkas dibuang otomatis.")
+sumber = st.sidebar.radio("Sumber data", ["Unggah berkas", "Ambil dari repo"],
+                          horizontal=True)
 
-if not unggah:
+payload: list[tuple[str, bytes]] = []
+if sumber == "Unggah berkas":
+    unggah = st.sidebar.file_uploader(
+        "Berkas CSV ekspor RTS", type=["csv"], accept_multiple_files=True,
+        help="Boleh lebih dari satu berkas (mis. ekspor per bulan). "
+             "Baris ganda antar berkas dibuang otomatis. "
+             "Berkas sangat besar (>50 MB) menguras memori tab browser.")
+    payload = [(f.name, f.getvalue()) for f in unggah]
+else:
+    daftar = _daftar_repo()
+    if not daftar:
+        st.sidebar.warning(
+            "Tidak dapat membaca `data/manifest.json` dari repo. "
+            "Gunakan mode unggah berkas, atau periksa koneksi.")
+    else:
+        label = {f'{d["nama"]}  ({d["periode"]})': d["nama"] for d in daftar}
+        pilih = st.sidebar.multiselect("Berkas di repo", list(label),
+                                       default=list(label)[:1])
+        for teks in pilih:
+            with st.sidebar:
+                with st.spinner(f"Mengunduh {label[teks]}…"):
+                    payload.append((label[teks], _ambil_repo(label[teks])))
+
+if not payload:
     st.title("Analisis Pemantauan Prisma RTS")
     st.markdown(
         """
-Unggah satu atau beberapa berkas CSV ekspor RTS di panel kiri untuk memulai.
+Pilih sumber data di panel kiri untuk memulai: unggah CSV ekspor RTS, atau
+ambil langsung dari folder `data/` di repo GitHub.
 
 **Keluaran yang dihasilkan**
 
@@ -68,29 +131,37 @@ Unggah satu atau beberapa berkas CSV ekspor RTS di panel kiri untuk memulai.
   relatif terhadap dataset, bukan TARP situs.
 - Koreksi datum **tidak diterapkan** sampai Anda memilih prisma referensi.
   Aplikasi hanya memberi saran; keputusan tetap di tangan Anda.
-- Seluruh proses berjalan lokal. Data tidak dikirim ke mana pun.
+- Muat awal stlite 30–60 detik (unduh Pyodide + pandas, setelah itu di-cache
+  browser). Seluruh proses berjalan di browser; data tidak dikirim ke mana pun.
         """)
     st.stop()
 
-payload = [(f.name, f.getvalue()) for f in unggah]
-
 # ---- konfigurasi ------------------------------------------------------------
-cfg = copy.deepcopy(pc.CONFIG)
+cfg = _konfigurasi_awal()
 
 with st.sidebar.expander("Segmentasi & QC", expanded=False):
     cfg["segmentasi"]["gap_segmen_jam"] = st.number_input(
-        "Gap pemicu segmen baru (jam)", 12, 720, 72, 12,
+        "Gap pemicu segmen baru (jam)", 12, 720, int(cfg["segmentasi"]["gap_segmen_jam"]), 12,
         help="Gap lebih panjang dari ini memulai segmen baru dengan baseline sendiri. "
              "Wajib untuk arsip panjang: prisma yang dipasang ulang tidak boleh "
              "disambung dengan baseline lama.")
-    cfg["qc"]["step_mm"] = st.number_input("Ambang dasar loncatan (mm)", 5.0, 200.0, 20.0, 5.0)
-    cfg["qc"]["step_sigma"] = st.number_input("Pengali sigma loncatan", 3.0, 12.0, 6.0, 0.5)
-    cfg["segmentasi"]["baseline_n_epoch"] = st.number_input("Epoch baseline", 3, 30, 6, 1)
-    cfg["agregasi"]["min_bacaan_harian"] = st.number_input("Min bacaan per hari", 1, 24, 4, 1)
+    cfg["qc"]["step_mm"] = st.number_input("Ambang dasar loncatan (mm)", 5.0, 200.0,
+                                           float(cfg["qc"]["step_mm"]), 5.0)
+    cfg["qc"]["step_sigma"] = st.number_input("Pengali sigma loncatan", 3.0, 12.0,
+                                              float(cfg["qc"]["step_sigma"]), 0.5)
+    cfg["segmentasi"]["baseline_n_epoch"] = st.number_input(
+        "Epoch baseline", 3, 30, int(cfg["segmentasi"]["baseline_n_epoch"]), 1)
+    cfg["agregasi"]["min_bacaan_harian"] = st.number_input(
+        "Min bacaan per hari", 1, 24, int(cfg["agregasi"]["min_bacaan_harian"]), 1)
+    cfg["qc"]["segmen_dari_loncatan"] = st.checkbox(
+        "Reset baseline otomatis saat dugaan pemasangan ulang",
+        value=bool(cfg["qc"]["segmen_dari_loncatan"]),
+        help="Bila aktif, pergeseran level 24 jam di atas ambang memecah segmen. "
+             "Tinjau log QC setelahnya — keputusan tetap milik pengguna.")
 
 with st.sidebar.expander("Ekspor & CRS", expanded=False):
     cfg["ekspor"]["skala_vektor"] = st.number_input(
-        "Skala vektor peta", 100, 20000, 1000, 100,
+        "Skala vektor peta", 100, 20000, int(cfg["ekspor"]["skala_vektor"]), 100,
         help="1 mm perpindahan digambar sepanjang nilai ini dalam meter/1000.")
     pakai_crs = st.checkbox("Tetapkan CRS (grid tambang)", value=False)
     if pakai_crs:
@@ -104,6 +175,7 @@ try:
     pra = _jalankan(payload, json.dumps(cfg))
 except Exception as e:  # noqa: BLE001
     st.error(f"Gagal membaca berkas: {e}")
+    st.exception(e)
     st.stop()
 
 saran = pra["datum"].get("saran_referensi", pd.DataFrame())
@@ -113,7 +185,8 @@ default_ref = (saran.kunci.str.split("#").str[0].head(3).tolist()
 
 st.sidebar.markdown("### Prisma referensi (datum)")
 refs = st.sidebar.multiselect(
-    "Pilih prisma yang dianggap stabil", opsi, default=[],
+    "Pilih prisma yang dianggap stabil", opsi,
+    default=[r for r in cfg["datum"]["referensi"] if r in opsi],
     help="Koreksi hanyutan datum hanya diterapkan bila referensi dipilih. "
          "Prisma referensi idealnya berada DI LUAR zona timbunan yang bergerak.")
 if not refs:
@@ -132,7 +205,12 @@ with st.sidebar.expander("Bobot skor prioritas", expanded=False):
         b[k] /= tot
 
 cfg["datum"]["referensi"] = refs
-hasil = _jalankan(payload, json.dumps(cfg))
+try:
+    hasil = _jalankan(payload, json.dumps(cfg))
+except Exception as e:  # noqa: BLE001
+    st.error(f"Pipeline gagal: {e}")
+    st.exception(e)
+    st.stop()
 
 S = hasil["ringkasan"]
 info = hasil["info"]
@@ -291,20 +369,30 @@ with t5:
 
     if st.button("Siapkan berkas keluaran", type="primary"):
         with st.spinner("Menulis CSV, GeoPackage, dan skrip Python…"):
-            tmp = Path(tempfile.mkdtemp())
-            csvs = tulis_csv(hasil, tmp, tag)
-            gpkg = tulis_gpkg(hasil, tmp / f"prisma_{tag}.gpkg", cfg)
-            skrip = tulis_skrip(hasil, tmp / f"analisis_{tag}.py",
+            if KELUARAN.exists():
+                shutil.rmtree(KELUARAN)
+            KELUARAN.mkdir(parents=True, exist_ok=True)
+            csvs = tulis_csv(hasil, KELUARAN, tag)
+            gpkg = tulis_gpkg(hasil, KELUARAN / f"prisma_{tag}.gpkg", cfg)
+            skrip = tulis_skrip(hasil, KELUARAN / f"analisis_{tag}.py",
                                 [n for n, _ in payload], tag)
-            for src in ("prisma_core.py", "gpkg_lite.py", "export.py"):
-                p = Path(__file__).with_name(src)
-                if p.exists():
-                    (tmp / src).write_bytes(p.read_bytes())
+
+            # sertakan paket prismacore + requirements agar skrip reproduksi
+            # dapat dijalankan setelah ZIP diekstrak, tanpa aplikasi ini
+            paket = KELUARAN / "prismacore"
+            paket.mkdir(exist_ok=True)
+            for nama in ("__init__.py", "core.py", "robust.py", "gpkg_lite.py",
+                         "export.py", "konfigurasi_bawaan.json"):
+                (paket / nama).write_bytes(
+                    resources.files("prismacore").joinpath(nama).read_bytes())
+            (KELUARAN / "requirements-core.txt").write_text(
+                'pandas>=2.0\nnumpy>=1.24\n', encoding="utf-8")
 
             buf = io.BytesIO()
             with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as z:
-                for p in tmp.iterdir():
-                    z.write(p, p.name)
+                for p in sorted(KELUARAN.rglob("*")):
+                    if p.is_file():
+                        z.write(p, p.relative_to(KELUARAN))
             st.session_state["zip"] = buf.getvalue()
             st.session_state["gpkg"] = gpkg.read_bytes()
             st.session_state["skrip"] = skrip.read_text(encoding="utf-8")
@@ -324,8 +412,8 @@ with t5:
         d4.download_button("Skrip Python", st.session_state["skrip"],
                            f"analisis_{t}.py", "text/x-python", use_container_width=True)
 
-        st.success("ZIP berisi seluruh keluaran plus `prisma_core.py`, `gpkg_lite.py`, "
-                   "dan `export.py` — skrip reproduksi dapat dijalankan langsung "
-                   "setelah diekstrak, tanpa memasang aplikasi ini.")
+        st.success("ZIP berisi seluruh keluaran plus paket `prismacore/` dan "
+                   "`requirements-core.txt` — skrip reproduksi dapat dijalankan "
+                   "langsung setelah diekstrak, tanpa memasang aplikasi ini.")
         with st.expander("Pratinjau skrip reproduksi"):
             st.code(st.session_state["skrip"][:4000], language="python")

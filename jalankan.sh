@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Jalankan aplikasi (Linux/macOS):  bash jalankan.sh
+# Jalankan aplikasi Streamlit lokal (Linux/macOS):  bash jalankan.sh
 set -e
 cd "$(dirname "$0")"
 if [ ! -d .venv ]; then
@@ -8,4 +8,4 @@ if [ ! -d .venv ]; then
 else
   source .venv/bin/activate
 fi
-streamlit run app.py
+streamlit run app/app.py
