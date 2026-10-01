@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ title }}</title>
+<style>
+  body { font-family: system-ui, -apple-system, Segoe UI, sans-serif;
+         margin: 2rem auto; max-width: 1100px; padding: 0 1rem; color: #202020; }
+  h1, h2 { border-bottom: 1px solid #d0d0d0; padding-bottom: .25rem; }
+  table { border-collapse: collapse; width: 100%; margin: .75rem 0; font-size: .85rem; }
+  th, td { border: 1px solid #cccccc; padding: .3rem .5rem; text-align: left;
+           vertical-align: top; }
+  th { background: #f2f2f2; }
+  .notice { border-left: 4px solid #c77700; background: #fff7e6;
+            padding: .6rem .9rem; margin: 1rem 0; }
+  .experimental { border-left: 4px solid #8e44ad; background: #f7f0fb;
+                  padding: .6rem .9rem; margin: 1rem 0; }
+  .limitations { border-left: 4px solid #b03030; background: #fdf0f0;
+                 padding: .6rem .9rem; margin: 1rem 0; }
+  .scroll { overflow-x: auto; }
+  footer { margin-top: 2rem; color: #666; font-size: .8rem; }
+</style>
+</head>
+<body>
+<h1>{{ title }}</h1>
+<p>Generated (UTC): {{ generated_utc }}</p>
+
+{% if tarp_notice %}
+<div class="notice"><strong>Exploratory output.</strong> {{ tarp_notice }}</div>
+{% endif %}
+
+<h2>Run summary</h2>
+<table>
+  <thead><tr><th>item</th><th>value</th></tr></thead>
+  <tbody>
+  {% for label, value in summary_rows %}
+    <tr><td>{{ label }}</td><td>{{ value }}</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+<p>Registered tables: {{ tables | join(", ") if tables else "(none)" }}</p>
+
+<h2>Movement concern</h2>
+<p>Movement concern is reported separately from measurement reliability and is
+never merged with it. These labels are exploratory screening outputs, not
+alarms.</p>
+<div class="scroll">{{ concern_html | safe }}</div>
+
+<h2>Measurement reliability</h2>
+<p>Reliability is graded independently of movement concern.</p>
+<div class="scroll">{{ reliability_html | safe }}</div>
+
+<h2>Frame correction (EXPERIMENTAL)</h2>
+<div class="experimental">
+  <p><strong>EXPERIMENTAL.</strong> Frame correction is relative to the chosen
+  network and is never absolute ground movement. Raw values remain the primary
+  record.</p>
+  <p>Status: {{ frame.status }}{% if frame.reason %} &mdash; {{ frame.reason }}{% endif %}</p>
+  <p>Frame-set members: {{ frame.members | length }}</p>
+</div>
+<div class="scroll">{{ frame_html | safe }}</div>
+
+<h2>Provenance and source hashes</h2>
+<table>
+  <thead><tr><th>source</th><th>SHA-256</th></tr></thead>
+  <tbody>
+  {% for name, sha in provenance_rows %}
+    <tr><td>{{ name }}</td><td><code>{{ sha }}</code></td></tr>
+  {% else %}
+    <tr><td>(none recorded)</td><td></td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+<p>Config SHA-256: <code>{{ config_sha256 }}</code></p>
+
+<h2>Limitations (mandatory)</h2>
+<div class="limitations">
+<ul>
+{% for limitation in limitations %}
+  <li>{{ limitation }}</li>
+{% endfor %}
+</ul>
+</div>
+
+<footer>rts-forensics exploratory report; no slope is ever declared safe or
+unsafe and unobserved periods are not evidence of stability.</footer>
+</body>
+</html>

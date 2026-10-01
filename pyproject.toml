@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rts-forensics"
+version = "0.1.0"
+description = "Auditable forensic analysis of monthly RTS prism-monitoring exports"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.10"
+authors = [{ name = "fanelix" }]
+dependencies = [
+    "pandas>=2.0",
+    "numpy>=1.24",
+    "scipy>=1.10",
+    "PyYAML>=6.0",
+]
+
+[project.optional-dependencies]
+report = ["jinja2>=3.1", "matplotlib>=3.7"]
+dashboard = ["streamlit>=1.30", "matplotlib>=3.7"]
+dev = ["pytest>=7.4", "ruff>=0.4", "mkdocs>=1.5", "mkdocs-material>=9.5"]
+
+[project.scripts]
+rts-forensics = "rts_forensics.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+rts_forensics = ["templates/*.j2", "templates/qgis/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+extend-exclude = ["app", "prismacore", "tools", "hasil"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B"]
+ignore = ["E501"]

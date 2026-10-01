@@ -1,0 +1,31 @@
+site_name: rts-forensics
+site_description: Auditable forensic analysis of monthly RTS prism-monitoring exports
+docs_dir: docs
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.top
+    - content.code.copy
+    - search.suggest
+
+nav:
+  - Design: design.md
+  - Method: method.md
+  - Pitfalls: pitfalls.md
+  - Limitations: limitations.md
+  - Configuration: configuration.md
+  - API: api.md
+  - Regression: regression.md
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.highlight
+  - pymdownx.superfences
+
+strict: true

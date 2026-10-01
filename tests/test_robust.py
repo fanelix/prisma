@@ -43,7 +43,7 @@ KASUS = {
 def test_theilslopes_sama_dengan_acuan(nama):
     x, y, alpha, acuan = KASUS[nama]
     hasil = rb.theilslopes(y, x, alpha)
-    for nilai, target in zip(hasil, acuan):
+    for nilai, target in zip(hasil, acuan, strict=False):
         assert nilai == pytest.approx(target, abs=TOL), (nama, hasil, acuan)
 
 

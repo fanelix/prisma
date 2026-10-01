@@ -1,0 +1,138 @@
+# rts-forensics effective configuration.
+#
+# Versioned. The values loaded here are written verbatim into every run
+# (`effective_config.yaml` + manifest) so a result is reproducible from the
+# configuration that produced it.
+#
+# Policy: values marked `not_configured` are decisions the handoff does not
+# define. They must not be inferred, guessed or defaulted. Modules return an
+# explicit status when a rule is unavailable; no automatic grade or
+# classification is invented. Values sourced from PROJECT_HANDOFF.md /
+# reference_code are marked "supplied" and are exploratory research settings,
+# not site TARP. Site-specific entries (station labels, processing break,
+# exclusions) are configuration inputs, never package constants.
+#
+# Units: geometry metres, displacement/translation millimetres, internal angles
+# radians, exported rotation arcseconds, rates mm/day, scale ppm, times
+# site-local naive.
+
+version: 2
+
+provenance:
+  preserve_raw_bytes: true      # copy original bytes under <out>/raw/
+  store_observation_ids: true   # immutable (source_sha256, src_line) identifiers
+
+input:
+  delimiter: null               # null = detect from the file (GeoMoS uses ";")
+  encodings: [cp1252, utf-8, iso-8859-1]
+  time_formats: ["%d/%m/%Y %H:%M", "%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M"]
+  timezone: site-local          # timezone unstated in the export; never converted
+  column_map: {}                # canonical name -> source column (auto-detected when empty)
+
+cycles:
+  # Supplied site schedule (handoff): E every ~4 h with 30 min gap; W hourly
+  # with 15 min gap. Other stations must be configured explicitly.
+  gap_minutes: { E: 30, W: 15 }
+  default_gap_minutes: 30
+  # Supplied known processing change (handoff); auto-detection is also run and
+  # both are reported. As-delivered coordinates are never bridged across it.
+  processing_break: "2026-09-21 18:00"
+
+stations:
+  # Station clusters are auto-detected from station easting (largest gap);
+  # explicit anchors name the site clusters. Exact coordinate equality is
+  # unusable across resections.
+  association_tolerance_m: not_configured
+  anchors:                      # site configuration (handoff station eastings)
+    - { label: E, easting_ref: 176064.0 }
+    - { label: W, easting_ref: 175087.0 }
+
+baseline:
+  window_hours: 48              # supplied
+  min_observations: 6           # supplied fallback (first 6 rows if sparse)
+  anchor: first_observations_of_segment   # supplied semantics
+  end_change_estimator: median_final_48h   # supplied semantics
+
+noise:
+  rolling_window_hours: 24      # supplied
+  centered: true
+  min_observations: 3           # supplied (min_periods)
+  robust_scale: 1.4826          # MAD -> SD conversion factor, not an alarm
+  spike_z: 6.0                  # supplied exploratory flag; observations retained
+
+rates:
+  block_hours: 24               # supplied; anchored at the final record, backwards
+  windows_days: [30, 7]         # supplied
+  windows_hours: [72]           # supplied; uses all cycles, CI ignores autocorrelation
+  confidence: 0.95              # supplied
+  block_anchor: final_record    # supplied (calendar-day blocks bias diurnal signals)
+
+screening:
+  # Exploratory evidence screening only. No TARP meaning.
+  sigma_multiplier: 3.0
+  los_floor_mm: 2.0
+  vertical_floor_mm: 5.0
+  possible_sigma_multiplier: 2.0
+  possible_los_floor_mm: 2.0
+  possible_vertical_floor_mm: 4.0
+  min_prism_cycles: 20
+  require_same_sign_ci: true
+
+reliability:
+  # Supplied research rules (s1_summary.py); exploratory, not alarms.
+  boundaries:
+    insufficient_below_cycles: 20
+    coverage_weak_pct: 50
+    coverage_moderate_pct: 80
+    max_gap_hours: 72
+    noisy_los_mm: 2.0
+    noisy_vertical_mm: 6.0
+    spike_flags_moderate: 5
+  frame_min_cycles: 100         # supplied
+
+frame:
+  weights:
+    hz_arcsec: 0.8              # supplied research weighting assumptions
+    los_mm: 0.8
+    vertical_mm: 3.0
+  huber_cutoff: 1.5             # supplied
+  convergence:
+    max_iterations: 30          # supplied
+    scale_floor: 1.0
+  conditioning_limit: not_configured   # rank + pinv diagnostics reported either way
+  min_prism_cycles_per_fit: 20  # supplied
+  frame_set_reliability: A      # supplied
+  exclusions: []                # explicit prism IDs never used as frame references
+  site_exclusions: []           # e.g. suspected movers and biased prisms (site config)
+
+forensics:
+  placebo_neighbors: 7          # supplied; neighbourhood semantics implemented generically
+  hour_class_hours: 4           # supplied (00/04/08/12/16/20 h classes)
+  day_bands:                    # supplied time-of-day bands
+    night: [20, 0, 4]
+    day: [8, 12, 16]
+  cluster:
+    radius_m: not_configured    # candidate clustering must not invent a radius
+    min_members: not_configured
+    coherence: not_configured
+  references:
+    alpha: 0.05                 # supplied
+    bonferroni: true
+    expected_rise_vertical_slope: -1.0   # supplied
+  missingness:
+    final_window_hours: 48      # supplied; unobserved != stable
+    permutation_n: 5000         # supplied
+    seed: 1
+    decision_significance: not_configured
+  events:
+    balanced_windows: [[16, 20, 0, 4], [20, 0, 4, 8]]   # supplied
+    step_significance: not_configured
+
+tarp: not_configured            # never applied unless the user supplies one
+
+gis:
+  srs_id: -1                    # undefined Cartesian; never guess an EPSG code
+  srs_wkt: null
+  transform: not_configured     # export-only; original grid data preserved
+  vector_scale: 2500            # supplied default @hlo_vec_scale
+  candidate_zone_rule: not_configured
