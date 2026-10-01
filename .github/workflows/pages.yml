@@ -6,6 +6,7 @@ on:
     paths:
       - "app/**"
       - "prismacore/**"
+      - "rts_forensics/**"
       - "konfigurasi/**"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
@@ -32,6 +33,7 @@ jobs:
           mkdir -p _site
           cp -r app/. _site/
           cp -r prismacore _site/prismacore
+          cp -r rts_forensics _site/rts_forensics
           cp -r konfigurasi _site/konfigurasi
           touch _site/.nojekyll
 

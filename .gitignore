@@ -5,3 +5,11 @@ __pycache__/
 _site/
 data_uji_3bulan.csv
 keluaran_*/
+results/
+dist/
+build/
+site/
+*.egg-info/
+data/*.csv
+golden_values.json
+local-regression/

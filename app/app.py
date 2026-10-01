@@ -28,6 +28,7 @@ import tempfile
 import zipfile
 from importlib import resources
 from pathlib import Path
+from urllib.parse import quote
 
 # --- pastikan paket `prismacore` dapat diimpor ------------------------------
 # Streamlit hanya menyisipkan folder skrip ke sys.path, bukan direktori kerja,
@@ -133,7 +134,7 @@ def _daftar_repo() -> list[dict]:
 
 @st.cache_data(show_spinner=False, ttl=600)
 def _ambil_repo(nama: str) -> bytes:
-    return _unduh(URL_REPO + nama, timeout=120)
+    return _unduh(URL_REPO + quote(nama, safe=""), timeout=120)
 
 
 def _berkas_paket() -> dict[str, bytes]:
@@ -167,6 +168,13 @@ def _konfigurasi_awal() -> dict:
 # =============================================================================
 #  SIDEBAR — SUMBER DATA
 # =============================================================================
+metode = st.sidebar.radio("Metode", ["Raw-observation forensics", "Legacy coordinate ranking"])
+if metode == "Raw-observation forensics":
+    from rts_forensics.dashboard import render
+
+    render(_daftar_repo, _ambil_repo)
+    st.stop()
+
 st.sidebar.title("Analisis Prisma RTS")
 st.sidebar.caption(f"prismacore v{pc.VERSI} · tanpa GDAL · tanpa server")
 

@@ -24,7 +24,7 @@
       <h1>Analisis Pemantauan Prisma RTS</h1>
       <p>Menyiapkan Python (Pyodide) dan pandas di dalam browser…</p>
       <div class="bar"><span></span></div>
-      <p>Muat pertama memerlukan 30–60 detik (±20 MB, di-cache setelahnya).
+      <p>Muat pertama mengunduh runtime Python, SciPy dan matplotlib (di-cache setelahnya).
          Seluruh proses berjalan di browser Anda; data tidak dikirim ke mana pun.</p>
     </div>
   </div>
@@ -33,9 +33,9 @@
     import { mount } from "https://cdn.jsdelivr.net/npm/@stlite/browser@1.8.1/build/stlite.js";
 
     mount({
-      // Hanya pandas + numpy. Pyodide TIDAK memuat modul sqlite3, karena itu
+      // Pyodide TIDAK memuat modul sqlite3, karena itu
       // GeoPackage ditulis oleh prismacore/sqlite_tulis.py (murni Python).
-      requirements: ["pandas", "numpy"],   // streamlit sudah menjadi runtime stlite
+      requirements: ["pandas", "numpy", "scipy", "matplotlib", "pyyaml"],
       entrypoint: "app.py",
       files: {
         "app.py":                             { url: "./app.py" },
@@ -47,6 +47,22 @@
         "prismacore/export.py":               { url: "./prismacore/export.py" },
         "prismacore/konfigurasi_bawaan.json": { url: "./prismacore/konfigurasi_bawaan.json" },
         "konfigurasi/candrian.json":          { url: "./konfigurasi/candrian.json" },
+        "rts_forensics/__init__.py":          { url: "./rts_forensics/__init__.py" },
+        "rts_forensics/__main__.py":          { url: "./rts_forensics/__main__.py" },
+        "rts_forensics/config.py":            { url: "./rts_forensics/config.py" },
+        "rts_forensics/parse.py":             { url: "./rts_forensics/parse.py" },
+        "rts_forensics/cycles.py":            { url: "./rts_forensics/cycles.py" },
+        "rts_forensics/displacement.py":      { url: "./rts_forensics/displacement.py" },
+        "rts_forensics/noise.py":             { url: "./rts_forensics/noise.py" },
+        "rts_forensics/rates.py":             { url: "./rts_forensics/rates.py" },
+        "rts_forensics/frame.py":             { url: "./rts_forensics/frame.py" },
+        "rts_forensics/investigations.py":     { url: "./rts_forensics/investigations.py" },
+        "rts_forensics/classify.py":           { url: "./rts_forensics/classify.py" },
+        "rts_forensics/pipeline.py":           { url: "./rts_forensics/pipeline.py" },
+        "rts_forensics/gis.py":                { url: "./rts_forensics/gis.py" },
+        "rts_forensics/report.py":             { url: "./rts_forensics/report.py" },
+        "rts_forensics/cli.py":                { url: "./rts_forensics/cli.py" },
+        "rts_forensics/dashboard.py":          { url: "./rts_forensics/dashboard.py" },
       },
     }, document.getElementById("root"));
   </script>

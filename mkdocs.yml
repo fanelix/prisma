@@ -1,0 +1,7 @@
+site_name: RTS Forensics
+docs_dir: docs
+nav:
+  - Overview: index.md
+  - Method and configuration: method.md
+  - Implementation plan: forensics-plan.md
+  - Verification and decisions: verification.md
