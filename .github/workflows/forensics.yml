@@ -1,0 +1,27 @@
+name: Forensics verification
+on:
+  push:
+    paths: ["rts_forensics/**", "tests/**", "docs/**", "app/**", "pyproject.toml", "mkdocs.yml", "config.yaml", ".github/workflows/forensics.yml"]
+  pull_request:
+    paths: ["rts_forensics/**", "tests/**", "docs/**", "app/**", "pyproject.toml", "mkdocs.yml", "config.yaml", ".github/workflows/forensics.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+      - run: pip install '.[dev,web]'
+      - run: ruff check rts_forensics tests/test_forensics*.py
+      - run: ruff format --check rts_forensics tests/test_forensics*.py
+      - run: python -m pytest tests -q
+      - run: mkdocs build --strict
+      - run: python -m build

@@ -1,0 +1,21 @@
+# Handoff constants only. Times are unspecified site local.
+baseline_hours: 48
+end_hours: 48
+cycle_gap_minutes: 30
+# Station IDs are ordered west to east by overlapping station easting ranges.
+# HLO export: S1 = W (15 minutes); S2 = E (30 minutes).
+station_gap_minutes:
+  S1: 15
+  S2: 30
+frame:
+  min_cycles: 100
+  include: []
+  exclude: []
+  references_under_test: []
+reliability: null
+tarp: null
+site_transform: null
+detection:
+  orientation_step_arcsec: null
+  bias_floor_mm: null
+  cluster_radius_m: null

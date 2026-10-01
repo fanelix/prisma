@@ -228,3 +228,23 @@ Batasan yang melekat pada data (bukan pada aplikasi): stasiun tunggal tanpa
 reseksi/backsight; datum vertikal tidak terkunci lebih baik dari ±3 mm; komponen
 melintang garis pandang ±4× lebih berderau daripada komponen jarak sehingga
 azimut pergerakan per prisma tidak terkendali untuk perpindahan < 15 mm.
+# Raw-observation forensics (handoff pipeline)
+
+The dashboard now defaults to the raw D/Hz/V forensic pipeline. It retains
+repeats and source lines, separates stations, fits experimental network frames,
+and displays raw/corrected results with concern and reliability separately.
+Legacy `prismacore` remains available as a separately labelled mode.
+
+```sh
+pip install '.[web]'
+rts-forensics run /path/to/export.csv --config config.yaml --out results/
+streamlit run app/app.py
+```
+
+See [method/configuration](docs/method.md) and [implementation APIs](docs/forensics-plan.md).
+No TARP or A–D reliability thresholds are assumed. Automatic frame selection
+is provisional until a grading policy or explicit frame set is supplied.
+The independent research scripts and HLO golden JSON were not supplied, so
+synthetic recovery is verified separately from optional local regression.
+
+---
