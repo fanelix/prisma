@@ -11,10 +11,11 @@ from .rates import blocks24, slope
 def hour_matched_net(series, column, window_hours, baseline_hours=None):
     first, last = series.ts.min(), series.ts.max()
     baseline_hours = window_hours if baseline_hours is None else baseline_hours
-    s = series.dropna(subset=[column]).copy()
+    # Narrow first: copying wide provenance columns dominated real-data runtime.
+    s = series[["ts", column]].dropna(subset=[column])
     if s.empty:
         return np.nan
-    s["hour"] = s.ts.dt.hour
+    s = s.assign(hour=s.ts.dt.hour)
     early = s[s.ts < first + pd.Timedelta(hours=baseline_hours)].groupby("hour")[column].median()
     late = s[s.ts > last - pd.Timedelta(hours=window_hours)].groupby("hour")[column].median()
     common = early.index.intersection(late.index)
@@ -23,8 +24,8 @@ def hour_matched_net(series, column, window_hours, baseline_hours=None):
 
 def paired_bias(g, column="los_raw"):
     """Same-date day-minus-night; 95% CI on date-paired means (not alarms)."""
-    g = g.dropna(subset=[column]).copy()
-    g["date"] = g.ts.dt.floor("D")
+    g = g[["ts", "night", column]].dropna(subset=[column])
+    g = g.assign(date=g.ts.dt.floor("D"))
     paired = g.groupby(["date", "night"])[column].median().unstack("night")
     if False not in paired or True not in paired:
         return np.nan, np.nan, np.nan, 0
@@ -57,9 +58,10 @@ def investigate(series, frames, summary, config):
     from scipy.stats import mannwhitneyu, spearmanr
 
     records, events = [], []
+    stations = {s: f[["ts", "cycle", "night"]] for s, f in series.groupby("station")}
     for (station, pid), g in series.groupby(["station", "pid"]):
         g = g.sort_values("ts")
-        station_series = series[series.station == station]
+        station_series = stations[station]
         station_start = station_series.ts.min()
         for period in range(
             int((station_series.ts.max() - station_start).total_seconds() // (7 * 86400)) + 1
@@ -85,7 +87,7 @@ def investigate(series, frames, summary, config):
                         limitation="relative to network cycles; target-specific observation schedule unknown",
                     )
                 )
-        angle = g.copy()
+        angle = g[["ts", "night", "v", "dhz_arcsec"]].copy()
         angle["zenith_arcsec"] = angle.v * 3600
         for column in ["dhz_arcsec", "zenith_arcsec"]:
             effect, low_angle, high_angle, n_angle = paired_bias(angle, column)
@@ -115,7 +117,9 @@ def investigate(series, frames, summary, config):
                 limitation="day/night geometry and real trends can confound paired effects",
             )
         )
-        weekly = g.assign(week=((g.ts - g.ts.min()).dt.total_seconds() // (7 * 86400)).astype(int))
+        weekly = g[["ts", "night", "los_raw"]].assign(
+            week=((g.ts - g.ts.min()).dt.total_seconds() // (7 * 86400)).astype(int)
+        )
         for week, w in weekly.groupby("week"):
             effect, *_ = paired_bias(w)
             records.append(_record("weekly_daytime_bias", pid, station, effect, period=str(week)))
@@ -131,7 +135,7 @@ def investigate(series, frames, summary, config):
             )
             rate = slope(t, "los_raw", 30) if len(t) else {"rate": np.nan}
             records.append(_record(label + "_only", pid, station, effect, rate_mm_day=rate["rate"]))
-        block = blocks24(g)
+        block = blocks24(g[[c for c in ["station", "pid", "ts", "night", "los_fc"] if c in g]])
         for half, b in enumerate(np.array_split(np.arange(len(block)), 2)):
             t = block.iloc[b]
             effect = t.los_fc.iloc[-1] - t.los_fc.iloc[0] if len(t) else np.nan

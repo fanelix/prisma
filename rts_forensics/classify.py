@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 from .investigations import hour_matched_net, paired_bias
-from .rates import slope
+from .rates import slopes
 
 
 def group_for_pid(pid):
@@ -68,10 +68,12 @@ def tarp_status(g, config):
 
 def summarize(series, noise, config):
     records = []
+    # Narrow per-station frames once; reslicing wide series per prism dominated runtime.
+    stations = {s: f[["ts", "cycle", "night"]] for s, f in series.groupby("station")}
     for (station, pid), g in series.groupby(["station", "pid"]):
         g = g.sort_values("ts")
         ns = noise[(noise.station == station) & (noise.pid == pid)].iloc[0]
-        all_station = series[series.station == station]
+        all_station = stations[station]
         early = g[g.ts < g.ts.min() + pd.Timedelta(hours=config["baseline_hours"])]
         late = g[g.ts > g.ts.max() - pd.Timedelta(hours=config["end_hours"])]
         end = all_station.ts.max()
@@ -103,13 +105,16 @@ def summarize(series, noise, config):
         row["night_success"] = g[g.night].cycle.nunique() / night_cycles if night_cycles else np.nan
         bias, low, high, _ = paired_bias(g)
         row.update(daytime_bias_mm=bias, daytime_bias_low_mm=low, daytime_bias_high_mm=high)
-        for prefix, column in [
+        products = [
             ("los_raw", "los_raw"),
             ("vertical_raw", "ver_raw"),
             ("los_fc", "los_fc"),
             ("vertical_fc", "ver_fc"),
             ("tangential_fc", "tan_fc"),
-        ]:
+        ]
+        present = [column for _, column in products if column in g]
+        windows = {days: slopes(g, present, days) for days in [30, 7, 3]}
+        for prefix, column in products:
             row["net_" + prefix + "_mm"] = (
                 late[column].median() - early[column].median()
                 if column in g and late[column].notna().any() and early[column].notna().any()
@@ -121,9 +126,7 @@ def summarize(series, noise, config):
                 else np.nan
             )
             for days, label in [(30, "30d"), (7, "7d"), (3, "72h")]:
-                rate = (
-                    slope(g, column, days) if column in g else {"rate": np.nan, "low": np.nan, "high": np.nan}
-                )
+                rate = windows[days].get(column, {"rate": np.nan, "low": np.nan, "high": np.nan})
                 for stat in ["rate", "low", "high"]:
                     row[prefix + "_" + label + "_" + stat] = rate[stat]
         raw_rate = {k: row["los_raw_30d_" + k] for k in ["rate", "low", "high"]}
