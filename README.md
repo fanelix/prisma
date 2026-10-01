@@ -1,3 +1,101 @@
+# rts-forensics
+
+`rts-forensics` is an open-source Python package, CLI and Streamlit dashboard
+for auditable forensic analysis of monthly Robotic Total Station (RTS)
+prism-monitoring exports. It separates **movement concern** from **measurement
+reliability**, works from the raw observations (Hz, V, slope distance) and
+reconstructs the instrument frame from the network, because as-delivered
+coordinates can contain an uncorrected instrument rotation of centimetre scale.
+
+It preserves the original upload and every source line, keeps raw and
+experimental frame-corrected series side by side, retains flags instead of
+deleting them, applies no TARP unless one is supplied, never infers a CRS, and
+never states that a slope is safe or unsafe.
+
+The implementation follows [docs/design.md](docs/design.md). The private
+`golden_values.json` fixture and the research scripts are not committed; see
+[reference_code/README.md](reference_code/README.md).
+
+## Quick start
+
+Clone the repository, then create an environment and install the package.
+
+```bash
+python -m venv .venv
+source .venv/bin/activate          # Windows: .venv\Scripts\activate
+pip install -e ".[report]"
+```
+
+### CLI
+
+```bash
+rts-forensics run data.csv --config config.yaml --out results/
+```
+
+The run writes CSV tables, figures, `report.md`/`report.html`, a styled
+GeoPackage, the effective configuration and a SHA-256 manifest. The original
+bytes are copied under `results/raw/` and every derived row keeps its source
+line.
+
+### Dashboard
+
+```bash
+pip install -e ".[dashboard]"
+streamlit run src/rts_forensics/dashboard/app.py
+```
+
+The dashboard has six pages — Upload & audit, Station frame, Prism explorer,
+Map, Events & investigations and Downloads — and calls the same pipeline and
+the same exporters as the CLI. It always shows the data limitations and the
+exploratory notice while no TARP is configured.
+
+## Configuration
+
+`config.yaml` holds every operational decision. Values supplied by the research
+bundle are included with provenance comments; decisions the bundle does not
+define are `not_configured` and produce an explicit status instead of a guessed
+value. The effective configuration is written into every run. See
+[docs/configuration.md](docs/configuration.md).
+
+## Tests and checks
+
+```bash
+pip install -e ".[dev]"
+ruff check src tests
+python -m pytest tests -q
+mkdocs build --strict
+```
+
+Public CI runs on Python 3.10, 3.11 and 3.12 with synthetic fixtures only; the
+real-data regression runs locally against the private export. See
+[docs/regression.md](docs/regression.md).
+
+## Documentation
+
+- [Design](docs/design.md) — repository, data contracts and dashboard proposal
+- [Method](docs/method.md) — pipeline stages, equations, units and sign conventions
+- [Pitfalls](docs/pitfalls.md) — the twelve failure modes and their countermeasures
+- [Limitations](docs/limitations.md) — what RTS data cannot establish
+- [Configuration](docs/configuration.md) — every setting and its provenance
+- [API](docs/api.md) — module-by-module public API
+- [Regression](docs/regression.md) — golden values and the private-data policy
+
+## Limitations
+
+No slope stability or factor of safety can be established from RTS data alone.
+No alarm status exists without a site TARP. No absolute movement can be
+established without external control. No causes can be attributed without
+external driver data. Resection references are not identifiable from the
+export. Unobserved periods are not evidence of stability.
+
+## License
+
+MIT, see [LICENSE](LICENSE).
+
+---
+
+# Legacy: Analisis Prisma RTS (prismacore)
+
 # Analisis Prisma RTS
 
 Aplikasi analisis pemantauan prisma RTS (Robotic Total Station): mengubah ekspor

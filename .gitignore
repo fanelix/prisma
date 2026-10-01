@@ -3,5 +3,8 @@ __pycache__/
 .pytest_cache/
 .venv/
 _site/
+site/
 data_uji_3bulan.csv
 keluaran_*/
+results/
+*.egg-info/

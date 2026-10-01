@@ -17,7 +17,6 @@ Catatan penyimpangan terdokumentasi dari dokumen rencana:
 
 from pathlib import Path
 
-import numpy as np
 import pytest
 
 import prismacore as pc
