@@ -1,0 +1,578 @@
+point_id,waktu,jenis,besaran,satuan,tindakan,catatan
+,,duplikat_baris,2231.0,baris,dibuang,baris ganda antar berkas
+,,station_reset,8.0,posisi,ditandai,koordinat stasiun tidak tunggal dalam berkas
+,2026-09-01 08:03:00,station_reset,-0.028,arcsec,ditandai,lompatan konstanta orientasi pada siklus 1
+,2026-09-01 18:01:00,station_reset,-912527.441,arcsec,ditandai,lompatan konstanta orientasi pada siklus 3
+,2026-09-01 19:01:00,station_reset,-917872.271,arcsec,ditandai,lompatan konstanta orientasi pada siklus 4
+,2026-09-01 20:03:00,station_reset,-0.046,arcsec,ditandai,lompatan konstanta orientasi pada siklus 5
+,2026-09-01 21:05:00,station_reset,-867106.099,arcsec,ditandai,lompatan konstanta orientasi pada siklus 6
+,2026-09-01 22:05:00,station_reset,-932042.497,arcsec,ditandai,lompatan konstanta orientasi pada siklus 7
+,2026-09-01 23:04:00,station_reset,-867105.863,arcsec,ditandai,lompatan konstanta orientasi pada siklus 8
+,2026-09-02 00:03:00,station_reset,-0.04,arcsec,ditandai,lompatan konstanta orientasi pada siklus 9
+,2026-09-02 01:04:00,station_reset,-932041.884,arcsec,ditandai,lompatan konstanta orientasi pada siklus 10
+,2026-09-02 03:05:00,station_reset,-867104.287,arcsec,ditandai,lompatan konstanta orientasi pada siklus 12
+,2026-09-02 04:03:00,station_reset,-0.039,arcsec,ditandai,lompatan konstanta orientasi pada siklus 13
+,2026-09-02 05:05:00,station_reset,-932043.192,arcsec,ditandai,lompatan konstanta orientasi pada siklus 14
+,2026-09-02 06:05:00,station_reset,-867106.359,arcsec,ditandai,lompatan konstanta orientasi pada siklus 15
+,2026-09-02 07:05:00,station_reset,-996979.741,arcsec,ditandai,lompatan konstanta orientasi pada siklus 16
+,2026-09-02 08:03:00,station_reset,-0.018,arcsec,ditandai,lompatan konstanta orientasi pada siklus 17
+,2026-09-02 17:01:00,station_reset,-917871.685,arcsec,ditandai,lompatan konstanta orientasi pada siklus 20
+,2026-09-02 20:03:00,station_reset,-0.028,arcsec,ditandai,lompatan konstanta orientasi pada siklus 23
+,2026-09-02 21:04:00,station_reset,-867105.713,arcsec,ditandai,lompatan konstanta orientasi pada siklus 24
+,2026-09-02 23:04:00,station_reset,-932042.589,arcsec,ditandai,lompatan konstanta orientasi pada siklus 26
+,2026-09-03 00:03:00,station_reset,-0.037,arcsec,ditandai,lompatan konstanta orientasi pada siklus 27
+,2026-09-03 01:04:00,station_reset,-932042.34,arcsec,ditandai,lompatan konstanta orientasi pada siklus 28
+,2026-09-03 04:04:00,station_reset,-0.029,arcsec,ditandai,lompatan konstanta orientasi pada siklus 31
+,2026-09-03 05:05:00,station_reset,-932042.584,arcsec,ditandai,lompatan konstanta orientasi pada siklus 32
+,2026-09-03 08:04:00,station_reset,-0.036,arcsec,ditandai,lompatan konstanta orientasi pada siklus 35
+,2026-09-03 17:21:00,station_reset,-917871.05,arcsec,ditandai,lompatan konstanta orientasi pada siklus 38
+,2026-09-03 19:01:00,station_reset,-912528.017,arcsec,ditandai,lompatan konstanta orientasi pada siklus 40
+,2026-09-03 20:03:00,station_reset,-0.038,arcsec,ditandai,lompatan konstanta orientasi pada siklus 41
+,2026-09-03 21:04:00,station_reset,-932041.552,arcsec,ditandai,lompatan konstanta orientasi pada siklus 42
+,2026-09-03 23:04:00,station_reset,-867105.641,arcsec,ditandai,lompatan konstanta orientasi pada siklus 44
+,2026-09-04 00:03:00,station_reset,-0.034,arcsec,ditandai,lompatan konstanta orientasi pada siklus 45
+,2026-09-04 01:05:00,station_reset,-932042.268,arcsec,ditandai,lompatan konstanta orientasi pada siklus 46
+,2026-09-04 02:05:00,station_reset,-867106.635,arcsec,ditandai,lompatan konstanta orientasi pada siklus 47
+,2026-09-04 03:04:00,station_reset,-1003040.144,arcsec,ditandai,lompatan konstanta orientasi pada siklus 48
+,2026-09-04 04:03:00,station_reset,-0.028,arcsec,ditandai,lompatan konstanta orientasi pada siklus 49
+,2026-09-04 05:04:00,station_reset,-867105.721,arcsec,ditandai,lompatan konstanta orientasi pada siklus 50
+,2026-09-04 06:04:00,station_reset,-932042.303,arcsec,ditandai,lompatan konstanta orientasi pada siklus 51
+,2026-09-04 08:03:00,station_reset,-0.026,arcsec,ditandai,lompatan konstanta orientasi pada siklus 53
+,2026-09-04 17:01:00,station_reset,-923213.546,arcsec,ditandai,lompatan konstanta orientasi pada siklus 56
+,2026-09-04 18:01:00,station_reset,-917870.622,arcsec,ditandai,lompatan konstanta orientasi pada siklus 57
+,2026-09-04 20:00:00,station_reset,-0.038,arcsec,ditandai,lompatan konstanta orientasi pada siklus 59
+,2026-09-04 21:05:00,station_reset,-932042.756,arcsec,ditandai,lompatan konstanta orientasi pada siklus 60
+,2026-09-04 22:04:00,station_reset,-1009102.831,arcsec,ditandai,lompatan konstanta orientasi pada siklus 61
+,2026-09-04 23:05:00,station_reset,-866483.982,arcsec,ditandai,lompatan konstanta orientasi pada siklus 62
+,2026-09-05 00:03:00,station_reset,-0.035,arcsec,ditandai,lompatan konstanta orientasi pada siklus 63
+,2026-09-05 01:04:00,station_reset,-932042.534,arcsec,ditandai,lompatan konstanta orientasi pada siklus 64
+,2026-09-05 02:04:00,station_reset,-1009102.055,arcsec,ditandai,lompatan konstanta orientasi pada siklus 65
+,2026-09-05 03:05:00,station_reset,-1009117.612,arcsec,ditandai,lompatan konstanta orientasi pada siklus 66
+,2026-09-05 04:03:00,station_reset,-0.032,arcsec,ditandai,lompatan konstanta orientasi pada siklus 67
+,2026-09-05 05:05:00,station_reset,-1009102.207,arcsec,ditandai,lompatan konstanta orientasi pada siklus 68
+,2026-09-05 06:05:00,station_reset,-932042.681,arcsec,ditandai,lompatan konstanta orientasi pada siklus 69
+,2026-09-05 08:03:00,station_reset,-0.028,arcsec,ditandai,lompatan konstanta orientasi pada siklus 71
+,2026-09-05 17:01:00,station_reset,-917871.049,arcsec,ditandai,lompatan konstanta orientasi pada siklus 74
+,2026-09-05 20:03:00,station_reset,-0.029,arcsec,ditandai,lompatan konstanta orientasi pada siklus 77
+,2026-09-05 21:05:00,station_reset,-932042.521,arcsec,ditandai,lompatan konstanta orientasi pada siklus 78
+,2026-09-06 00:03:00,station_reset,-0.025,arcsec,ditandai,lompatan konstanta orientasi pada siklus 81
+,2026-09-06 01:05:00,station_reset,-996978.812,arcsec,ditandai,lompatan konstanta orientasi pada siklus 82
+,2026-09-06 02:05:00,station_reset,-866483.241,arcsec,ditandai,lompatan konstanta orientasi pada siklus 83
+,2026-09-06 03:05:00,station_reset,-1009102.023,arcsec,ditandai,lompatan konstanta orientasi pada siklus 84
+,2026-09-06 04:03:00,station_reset,-0.028,arcsec,ditandai,lompatan konstanta orientasi pada siklus 85
+,2026-09-06 05:04:00,station_reset,-996978.943,arcsec,ditandai,lompatan konstanta orientasi pada siklus 86
+,2026-09-06 06:04:00,station_reset,-932043.038,arcsec,ditandai,lompatan konstanta orientasi pada siklus 87
+,2026-09-06 07:04:00,station_reset,-931421.516,arcsec,ditandai,lompatan konstanta orientasi pada siklus 88
+,2026-09-06 08:03:00,station_reset,-0.024,arcsec,ditandai,lompatan konstanta orientasi pada siklus 89
+,2026-09-06 17:01:00,station_reset,-911514.777,arcsec,ditandai,lompatan konstanta orientasi pada siklus 92
+,2026-09-06 18:01:00,station_reset,-910499.144,arcsec,ditandai,lompatan konstanta orientasi pada siklus 93
+,2026-09-06 19:01:00,station_reset,-911514.026,arcsec,ditandai,lompatan konstanta orientasi pada siklus 94
+,2026-09-06 20:03:00,station_reset,-0.03,arcsec,ditandai,lompatan konstanta orientasi pada siklus 95
+,2026-09-06 21:05:00,station_reset,-1009103.346,arcsec,ditandai,lompatan konstanta orientasi pada siklus 96
+,2026-09-06 23:05:00,station_reset,-1015354.684,arcsec,ditandai,lompatan konstanta orientasi pada siklus 98
+,2026-09-07 00:03:00,station_reset,-0.023,arcsec,ditandai,lompatan konstanta orientasi pada siklus 99
+,2026-09-07 01:05:00,station_reset,-1009103.238,arcsec,ditandai,lompatan konstanta orientasi pada siklus 100
+,2026-09-07 02:04:00,station_reset,-932043.39,arcsec,ditandai,lompatan konstanta orientasi pada siklus 101
+,2026-09-07 03:05:00,station_reset,-937484.791,arcsec,ditandai,lompatan konstanta orientasi pada siklus 102
+,2026-09-07 04:03:00,station_reset,-0.043,arcsec,ditandai,lompatan konstanta orientasi pada siklus 103
+,2026-09-07 05:05:00,station_reset,-866486.24,arcsec,ditandai,lompatan konstanta orientasi pada siklus 104
+,2026-09-07 06:05:00,station_reset,-932043.348,arcsec,ditandai,lompatan konstanta orientasi pada siklus 105
+,2026-09-07 08:04:00,station_reset,-0.041,arcsec,ditandai,lompatan konstanta orientasi pada siklus 107
+,2026-09-07 17:01:00,station_reset,-917872.758,arcsec,ditandai,lompatan konstanta orientasi pada siklus 109
+,2026-09-07 20:03:00,station_reset,-0.035,arcsec,ditandai,lompatan konstanta orientasi pada siklus 112
+,2026-09-07 21:04:00,station_reset,-932043.609,arcsec,ditandai,lompatan konstanta orientasi pada siklus 113
+,2026-09-07 22:04:00,station_reset,-867106.134,arcsec,ditandai,lompatan konstanta orientasi pada siklus 114
+,2026-09-08 00:03:00,station_reset,-0.041,arcsec,ditandai,lompatan konstanta orientasi pada siklus 116
+,2026-09-08 01:04:00,station_reset,-932043.586,arcsec,ditandai,lompatan konstanta orientasi pada siklus 117
+,2026-09-08 03:05:00,station_reset,-867107.801,arcsec,ditandai,lompatan konstanta orientasi pada siklus 119
+,2026-09-08 04:03:00,station_reset,-0.035,arcsec,ditandai,lompatan konstanta orientasi pada siklus 120
+,2026-09-08 05:04:00,station_reset,-867108.207,arcsec,ditandai,lompatan konstanta orientasi pada siklus 121
+,2026-09-08 06:05:00,station_reset,-932043.45,arcsec,ditandai,lompatan konstanta orientasi pada siklus 122
+,2026-09-08 08:03:00,station_reset,-0.026,arcsec,ditandai,lompatan konstanta orientasi pada siklus 124
+,2026-09-08 17:01:00,station_reset,-912530.103,arcsec,ditandai,lompatan konstanta orientasi pada siklus 127
+,2026-09-08 18:01:00,station_reset,-917872.794,arcsec,ditandai,lompatan konstanta orientasi pada siklus 128
+,2026-09-08 20:03:00,station_reset,-0.041,arcsec,ditandai,lompatan konstanta orientasi pada siklus 130
+,2026-09-08 21:05:00,station_reset,-932043.612,arcsec,ditandai,lompatan konstanta orientasi pada siklus 131
+,2026-09-08 22:05:00,station_reset,-867107.999,arcsec,ditandai,lompatan konstanta orientasi pada siklus 132
+,2026-09-08 23:05:00,station_reset,-938106.577,arcsec,ditandai,lompatan konstanta orientasi pada siklus 133
+,2026-09-09 00:51:00,station_reset,-0.031,arcsec,ditandai,lompatan konstanta orientasi pada siklus 134
+,2026-09-09 02:33:00,station_reset,-863553.638,arcsec,ditandai,lompatan konstanta orientasi pada siklus 135
+,2026-09-09 04:03:00,station_reset,-0.031,arcsec,ditandai,lompatan konstanta orientasi pada siklus 137
+,2026-09-09 05:06:00,station_reset,-863553.938,arcsec,ditandai,lompatan konstanta orientasi pada siklus 138
+,2026-09-09 06:05:00,station_reset,-865864.598,arcsec,ditandai,lompatan konstanta orientasi pada siklus 139
+,2026-09-09 07:06:00,station_reset,-932043.85,arcsec,ditandai,lompatan konstanta orientasi pada siklus 140
+,2026-09-09 08:03:00,station_reset,-0.029,arcsec,ditandai,lompatan konstanta orientasi pada siklus 141
+,2026-09-09 18:01:00,station_reset,-917873.112,arcsec,ditandai,lompatan konstanta orientasi pada siklus 144
+,2026-09-09 19:01:00,station_reset,-911514.214,arcsec,ditandai,lompatan konstanta orientasi pada siklus 145
+,2026-09-09 20:03:00,station_reset,-0.047,arcsec,ditandai,lompatan konstanta orientasi pada siklus 146
+,2026-09-09 21:05:00,station_reset,-996979.443,arcsec,ditandai,lompatan konstanta orientasi pada siklus 147
+,2026-09-09 22:05:00,station_reset,-932043.488,arcsec,ditandai,lompatan konstanta orientasi pada siklus 148
+,2026-09-09 23:05:00,station_reset,-867106.398,arcsec,ditandai,lompatan konstanta orientasi pada siklus 149
+,2026-09-10 00:03:00,station_reset,-0.049,arcsec,ditandai,lompatan konstanta orientasi pada siklus 150
+,2026-09-10 01:05:00,station_reset,-867107.766,arcsec,ditandai,lompatan konstanta orientasi pada siklus 151
+,2026-09-10 02:04:00,station_reset,-867104.808,arcsec,ditandai,lompatan konstanta orientasi pada siklus 152
+,2026-09-10 03:04:00,station_reset,-938105.254,arcsec,ditandai,lompatan konstanta orientasi pada siklus 153
+,2026-09-10 04:03:00,station_reset,-0.045,arcsec,ditandai,lompatan konstanta orientasi pada siklus 154
+,2026-09-10 05:05:00,station_reset,-938104.764,arcsec,ditandai,lompatan konstanta orientasi pada siklus 155
+,2026-09-10 06:05:00,station_reset,-867106.953,arcsec,ditandai,lompatan konstanta orientasi pada siklus 156
+,2026-09-10 07:05:00,station_reset,-932044.178,arcsec,ditandai,lompatan konstanta orientasi pada siklus 157
+,2026-09-10 08:03:00,station_reset,-0.036,arcsec,ditandai,lompatan konstanta orientasi pada siklus 158
+,2026-09-10 17:01:00,station_reset,-917872.2,arcsec,ditandai,lompatan konstanta orientasi pada siklus 161
+,2026-09-10 20:03:00,station_reset,-0.032,arcsec,ditandai,lompatan konstanta orientasi pada siklus 164
+,2026-09-10 21:04:00,station_reset,-938105.446,arcsec,ditandai,lompatan konstanta orientasi pada siklus 165
+,2026-09-10 22:05:00,station_reset,-867107.425,arcsec,ditandai,lompatan konstanta orientasi pada siklus 166
+,2026-09-11 00:03:00,station_reset,-0.043,arcsec,ditandai,lompatan konstanta orientasi pada siklus 168
+,2026-09-11 01:05:00,station_reset,-867106.877,arcsec,ditandai,lompatan konstanta orientasi pada siklus 169
+,2026-09-11 04:03:00,station_reset,-0.04,arcsec,ditandai,lompatan konstanta orientasi pada siklus 172
+,2026-09-11 05:05:00,station_reset,-866485.51,arcsec,ditandai,lompatan konstanta orientasi pada siklus 173
+,2026-09-11 06:05:00,station_reset,-938104.941,arcsec,ditandai,lompatan konstanta orientasi pada siklus 174
+,2026-09-11 07:05:00,station_reset,-932043.451,arcsec,ditandai,lompatan konstanta orientasi pada siklus 175
+,2026-09-11 08:03:00,station_reset,-0.034,arcsec,ditandai,lompatan konstanta orientasi pada siklus 176
+,2026-09-11 17:01:00,station_reset,-912527.76,arcsec,ditandai,lompatan konstanta orientasi pada siklus 179
+,2026-09-11 18:02:00,station_reset,-917871.605,arcsec,ditandai,lompatan konstanta orientasi pada siklus 180
+,2026-09-11 20:03:00,station_reset,-0.035,arcsec,ditandai,lompatan konstanta orientasi pada siklus 182
+,2026-09-11 21:05:00,station_reset,-932042.334,arcsec,ditandai,lompatan konstanta orientasi pada siklus 183
+,2026-09-11 22:04:00,station_reset,-867105.226,arcsec,ditandai,lompatan konstanta orientasi pada siklus 184
+,2026-09-12 00:04:00,station_reset,-0.025,arcsec,ditandai,lompatan konstanta orientasi pada siklus 186
+,2026-09-12 01:04:00,station_reset,-868956.296,arcsec,ditandai,lompatan konstanta orientasi pada siklus 187
+,2026-09-12 02:05:00,station_reset,-932042.39,arcsec,ditandai,lompatan konstanta orientasi pada siklus 188
+,2026-09-12 03:05:00,station_reset,-867105.978,arcsec,ditandai,lompatan konstanta orientasi pada siklus 189
+,2026-09-12 04:03:00,station_reset,-0.026,arcsec,ditandai,lompatan konstanta orientasi pada siklus 190
+,2026-09-12 05:11:00,station_reset,-867104.45,arcsec,ditandai,lompatan konstanta orientasi pada siklus 191
+,2026-09-12 07:05:00,station_reset,-996979.037,arcsec,ditandai,lompatan konstanta orientasi pada siklus 193
+,2026-09-12 08:03:00,station_reset,-0.033,arcsec,ditandai,lompatan konstanta orientasi pada siklus 194
+,2026-09-12 17:01:00,station_reset,-917872.245,arcsec,ditandai,lompatan konstanta orientasi pada siklus 197
+,2026-09-12 19:01:00,station_reset,-912528.045,arcsec,ditandai,lompatan konstanta orientasi pada siklus 199
+,2026-09-12 20:03:00,station_reset,-0.041,arcsec,ditandai,lompatan konstanta orientasi pada siklus 200
+,2026-09-12 21:05:00,station_reset,-867106.309,arcsec,ditandai,lompatan konstanta orientasi pada siklus 201
+,2026-09-12 22:04:00,station_reset,-932041.66,arcsec,ditandai,lompatan konstanta orientasi pada siklus 202
+,2026-09-13 00:03:00,station_reset,-0.033,arcsec,ditandai,lompatan konstanta orientasi pada siklus 204
+,2026-09-13 01:05:00,station_reset,-866485.343,arcsec,ditandai,lompatan konstanta orientasi pada siklus 205
+,2026-09-13 02:05:00,station_reset,-867107.683,arcsec,ditandai,lompatan konstanta orientasi pada siklus 206
+,2026-09-13 03:06:00,station_reset,-938103.76,arcsec,ditandai,lompatan konstanta orientasi pada siklus 207
+,2026-09-13 04:03:00,station_reset,-0.029,arcsec,ditandai,lompatan konstanta orientasi pada siklus 208
+,2026-09-13 05:05:00,station_reset,-867106.738,arcsec,ditandai,lompatan konstanta orientasi pada siklus 209
+,2026-09-13 07:05:00,station_reset,-932043.724,arcsec,ditandai,lompatan konstanta orientasi pada siklus 211
+,2026-09-13 08:03:00,station_reset,-0.02,arcsec,ditandai,lompatan konstanta orientasi pada siklus 212
+,2026-09-13 17:01:00,station_reset,-912527.859,arcsec,ditandai,lompatan konstanta orientasi pada siklus 215
+,2026-09-13 19:01:00,station_reset,-911512.496,arcsec,ditandai,lompatan konstanta orientasi pada siklus 217
+,2026-09-13 20:03:00,station_reset,-0.048,arcsec,ditandai,lompatan konstanta orientasi pada siklus 218
+,2026-09-13 21:05:00,station_reset,-866484.751,arcsec,ditandai,lompatan konstanta orientasi pada siklus 219
+,2026-09-13 22:04:00,station_reset,-932041.796,arcsec,ditandai,lompatan konstanta orientasi pada siklus 220
+,2026-09-14 00:03:00,station_reset,-0.03,arcsec,ditandai,lompatan konstanta orientasi pada siklus 222
+,2026-09-14 01:06:00,station_reset,-866484.541,arcsec,ditandai,lompatan konstanta orientasi pada siklus 223
+,2026-09-14 02:04:00,station_reset,-996978.442,arcsec,ditandai,lompatan konstanta orientasi pada siklus 224
+,2026-09-14 03:05:00,station_reset,-932042.112,arcsec,ditandai,lompatan konstanta orientasi pada siklus 225
+,2026-09-14 04:03:00,station_reset,-0.03,arcsec,ditandai,lompatan konstanta orientasi pada siklus 226
+,2026-09-14 05:05:00,station_reset,-932042.83,arcsec,ditandai,lompatan konstanta orientasi pada siklus 227
+,2026-09-14 06:05:00,station_reset,-938104.446,arcsec,ditandai,lompatan konstanta orientasi pada siklus 228
+,2026-09-14 07:05:00,station_reset,-932044.773,arcsec,ditandai,lompatan konstanta orientasi pada siklus 229
+,2026-09-14 08:04:00,station_reset,-0.023,arcsec,ditandai,lompatan konstanta orientasi pada siklus 230
+,2026-09-14 17:01:00,station_reset,-917872.154,arcsec,ditandai,lompatan konstanta orientasi pada siklus 233
+,2026-09-14 18:01:00,station_reset,-912527.695,arcsec,ditandai,lompatan konstanta orientasi pada siklus 234
+,2026-09-14 19:01:00,station_reset,-911511.973,arcsec,ditandai,lompatan konstanta orientasi pada siklus 235
+,2026-09-14 20:04:00,station_reset,-0.025,arcsec,ditandai,lompatan konstanta orientasi pada siklus 236
+,2026-09-14 21:04:00,station_reset,-932043.09,arcsec,ditandai,lompatan konstanta orientasi pada siklus 237
+,2026-09-14 22:04:00,station_reset,-867106.087,arcsec,ditandai,lompatan konstanta orientasi pada siklus 238
+,2026-09-15 00:03:00,station_reset,-0.045,arcsec,ditandai,lompatan konstanta orientasi pada siklus 240
+,2026-09-15 01:04:00,station_reset,-867104.834,arcsec,ditandai,lompatan konstanta orientasi pada siklus 241
+,2026-09-15 04:03:00,station_reset,-0.037,arcsec,ditandai,lompatan konstanta orientasi pada siklus 244
+,2026-09-15 05:05:00,station_reset,-867104.532,arcsec,ditandai,lompatan konstanta orientasi pada siklus 245
+,2026-09-15 07:05:00,station_reset,-932044.599,arcsec,ditandai,lompatan konstanta orientasi pada siklus 247
+,2026-09-15 08:03:00,station_reset,-0.035,arcsec,ditandai,lompatan konstanta orientasi pada siklus 248
+,2026-09-15 17:01:00,station_reset,-917872.166,arcsec,ditandai,lompatan konstanta orientasi pada siklus 251
+,2026-09-15 19:01:00,station_reset,-912527.994,arcsec,ditandai,lompatan konstanta orientasi pada siklus 253
+,2026-09-15 20:03:00,station_reset,-0.042,arcsec,ditandai,lompatan konstanta orientasi pada siklus 254
+,2026-09-15 21:04:00,station_reset,-867105.989,arcsec,ditandai,lompatan konstanta orientasi pada siklus 255
+,2026-09-15 23:04:00,station_reset,-932042.278,arcsec,ditandai,lompatan konstanta orientasi pada siklus 257
+,2026-09-16 00:03:00,station_reset,-0.027,arcsec,ditandai,lompatan konstanta orientasi pada siklus 258
+,2026-09-16 01:05:00,station_reset,-932041.535,arcsec,ditandai,lompatan konstanta orientasi pada siklus 259
+,2026-09-16 04:03:00,station_reset,-0.028,arcsec,ditandai,lompatan konstanta orientasi pada siklus 262
+,2026-09-16 05:05:00,station_reset,-932041.56,arcsec,ditandai,lompatan konstanta orientasi pada siklus 263
+,2026-09-16 08:04:00,station_reset,-0.029,arcsec,ditandai,lompatan konstanta orientasi pada siklus 266
+,2026-09-16 17:01:00,station_reset,-912528.914,arcsec,ditandai,lompatan konstanta orientasi pada siklus 269
+,2026-09-16 19:01:00,station_reset,-911511.985,arcsec,ditandai,lompatan konstanta orientasi pada siklus 271
+,2026-09-16 20:03:00,station_reset,-0.042,arcsec,ditandai,lompatan konstanta orientasi pada siklus 272
+,2026-09-16 21:05:00,station_reset,-867105.417,arcsec,ditandai,lompatan konstanta orientasi pada siklus 273
+,2026-09-17 00:03:00,station_reset,-0.038,arcsec,ditandai,lompatan konstanta orientasi pada siklus 276
+,2026-09-17 01:05:00,station_reset,-867105.812,arcsec,ditandai,lompatan konstanta orientasi pada siklus 277
+,2026-09-17 04:03:00,station_reset,-0.041,arcsec,ditandai,lompatan konstanta orientasi pada siklus 280
+,2026-09-17 05:04:00,station_reset,-938103.45,arcsec,ditandai,lompatan konstanta orientasi pada siklus 281
+,2026-09-17 06:05:00,station_reset,-867105.796,arcsec,ditandai,lompatan konstanta orientasi pada siklus 282
+,2026-09-17 08:04:00,station_reset,-0.03,arcsec,ditandai,lompatan konstanta orientasi pada siklus 284
+,2026-09-17 17:01:00,station_reset,-923214.921,arcsec,ditandai,lompatan konstanta orientasi pada siklus 287
+,2026-09-17 18:01:00,station_reset,-912528.166,arcsec,ditandai,lompatan konstanta orientasi pada siklus 288
+,2026-09-17 19:02:00,station_reset,-917871.97,arcsec,ditandai,lompatan konstanta orientasi pada siklus 289
+,2026-09-17 20:03:00,station_reset,-0.044,arcsec,ditandai,lompatan konstanta orientasi pada siklus 290
+,2026-09-17 21:05:00,station_reset,-867105.629,arcsec,ditandai,lompatan konstanta orientasi pada siklus 291
+,2026-09-18 00:03:00,station_reset,-0.049,arcsec,ditandai,lompatan konstanta orientasi pada siklus 294
+,2026-09-18 01:05:00,station_reset,-865864.207,arcsec,ditandai,lompatan konstanta orientasi pada siklus 295
+,2026-09-18 03:05:00,station_reset,-867105.453,arcsec,ditandai,lompatan konstanta orientasi pada siklus 297
+,2026-09-18 04:03:00,station_reset,-0.039,arcsec,ditandai,lompatan konstanta orientasi pada siklus 298
+,2026-09-18 05:04:00,station_reset,-867105.111,arcsec,ditandai,lompatan konstanta orientasi pada siklus 299
+,2026-09-18 06:05:00,station_reset,-866484.512,arcsec,ditandai,lompatan konstanta orientasi pada siklus 300
+,2026-09-18 07:06:00,station_reset,-865864.523,arcsec,ditandai,lompatan konstanta orientasi pada siklus 301
+,2026-09-18 08:03:00,station_reset,-0.024,arcsec,ditandai,lompatan konstanta orientasi pada siklus 302
+,2026-09-18 17:01:00,station_reset,-912528.396,arcsec,ditandai,lompatan konstanta orientasi pada siklus 305
+,2026-09-18 20:03:00,station_reset,-0.019,arcsec,ditandai,lompatan konstanta orientasi pada siklus 308
+,2026-09-18 21:05:00,station_reset,-867104.147,arcsec,ditandai,lompatan konstanta orientasi pada siklus 309
+,2026-09-19 00:03:00,station_reset,-0.022,arcsec,ditandai,lompatan konstanta orientasi pada siklus 312
+,2026-09-19 01:06:00,station_reset,-867105.451,arcsec,ditandai,lompatan konstanta orientasi pada siklus 313
+,2026-09-19 03:05:00,station_reset,-938103.666,arcsec,ditandai,lompatan konstanta orientasi pada siklus 315
+,2026-09-19 04:03:00,station_reset,-0.036,arcsec,ditandai,lompatan konstanta orientasi pada siklus 316
+,2026-09-19 05:05:00,station_reset,-867105.843,arcsec,ditandai,lompatan konstanta orientasi pada siklus 317
+,2026-09-19 08:03:00,station_reset,-0.028,arcsec,ditandai,lompatan konstanta orientasi pada siklus 320
+,2026-09-19 17:01:00,station_reset,-912527.89,arcsec,ditandai,lompatan konstanta orientasi pada siklus 323
+,2026-09-19 20:03:00,station_reset,-0.054,arcsec,ditandai,lompatan konstanta orientasi pada siklus 326
+,2026-09-19 21:06:00,station_reset,-867105.268,arcsec,ditandai,lompatan konstanta orientasi pada siklus 327
+,2026-09-19 23:05:00,station_reset,-867106.951,arcsec,ditandai,lompatan konstanta orientasi pada siklus 329
+,2026-09-20 00:00:00,station_reset,-0.034,arcsec,ditandai,lompatan konstanta orientasi pada siklus 330
+,2026-09-20 01:05:00,station_reset,-866484.51,arcsec,ditandai,lompatan konstanta orientasi pada siklus 331
+,2026-09-20 02:05:00,station_reset,-867105.324,arcsec,ditandai,lompatan konstanta orientasi pada siklus 332
+,2026-09-20 04:03:00,station_reset,-0.04,arcsec,ditandai,lompatan konstanta orientasi pada siklus 334
+,2026-09-20 05:05:00,station_reset,-867105.599,arcsec,ditandai,lompatan konstanta orientasi pada siklus 335
+,2026-09-20 06:05:00,station_reset,-1009102.478,arcsec,ditandai,lompatan konstanta orientasi pada siklus 336
+,2026-09-20 07:06:00,station_reset,-867107.236,arcsec,ditandai,lompatan konstanta orientasi pada siklus 337
+,2026-09-20 08:04:00,station_reset,-0.034,arcsec,ditandai,lompatan konstanta orientasi pada siklus 338
+,2026-09-20 18:01:00,station_reset,-912527.442,arcsec,ditandai,lompatan konstanta orientasi pada siklus 341
+,2026-09-20 20:03:00,station_reset,-0.025,arcsec,ditandai,lompatan konstanta orientasi pada siklus 343
+,2026-09-20 21:05:00,station_reset,-867105.094,arcsec,ditandai,lompatan konstanta orientasi pada siklus 344
+,2026-09-20 22:05:00,station_reset,-866486.244,arcsec,ditandai,lompatan konstanta orientasi pada siklus 345
+,2026-09-20 23:04:00,station_reset,-938104.737,arcsec,ditandai,lompatan konstanta orientasi pada siklus 346
+,2026-09-21 00:03:00,station_reset,-0.022,arcsec,ditandai,lompatan konstanta orientasi pada siklus 347
+,2026-09-21 01:05:00,station_reset,-867106.444,arcsec,ditandai,lompatan konstanta orientasi pada siklus 348
+,2026-09-21 02:05:00,station_reset,-1009118.219,arcsec,ditandai,lompatan konstanta orientasi pada siklus 349
+,2026-09-21 03:05:00,station_reset,-867105.672,arcsec,ditandai,lompatan konstanta orientasi pada siklus 350
+,2026-09-21 04:03:00,station_reset,-0.033,arcsec,ditandai,lompatan konstanta orientasi pada siklus 351
+,2026-09-21 05:05:00,station_reset,-867105.828,arcsec,ditandai,lompatan konstanta orientasi pada siklus 352
+,2026-09-21 08:03:00,station_reset,-0.014,arcsec,ditandai,lompatan konstanta orientasi pada siklus 355
+,2026-09-21 17:01:00,station_reset,-917871.821,arcsec,ditandai,lompatan konstanta orientasi pada siklus 358
+,2026-09-21 18:01:00,station_reset,-912528.048,arcsec,ditandai,lompatan konstanta orientasi pada siklus 359
+,2026-09-21 20:03:00,station_reset,10.933,arcsec,ditandai,lompatan konstanta orientasi pada siklus 361
+,2026-09-21 21:05:00,station_reset,-867106.473,arcsec,ditandai,lompatan konstanta orientasi pada siklus 362
+,2026-09-22 00:03:00,station_reset,8.344,arcsec,ditandai,lompatan konstanta orientasi pada siklus 365
+,2026-09-22 01:05:00,station_reset,-938104.894,arcsec,ditandai,lompatan konstanta orientasi pada siklus 366
+,2026-09-22 02:05:00,station_reset,-867105.889,arcsec,ditandai,lompatan konstanta orientasi pada siklus 367
+,2026-09-22 04:03:00,station_reset,8.958,arcsec,ditandai,lompatan konstanta orientasi pada siklus 369
+,2026-09-22 05:05:00,station_reset,-938104.896,arcsec,ditandai,lompatan konstanta orientasi pada siklus 370
+,2026-09-22 06:05:00,station_reset,-1009103.017,arcsec,ditandai,lompatan konstanta orientasi pada siklus 371
+,2026-09-22 07:05:00,station_reset,-996980.594,arcsec,ditandai,lompatan konstanta orientasi pada siklus 372
+,2026-09-22 08:04:00,station_reset,8.978,arcsec,ditandai,lompatan konstanta orientasi pada siklus 373
+,2026-09-22 17:01:00,station_reset,-912528.031,arcsec,ditandai,lompatan konstanta orientasi pada siklus 376
+,2026-09-22 19:01:00,station_reset,-917872.535,arcsec,ditandai,lompatan konstanta orientasi pada siklus 378
+,2026-09-22 20:03:00,station_reset,8.904,arcsec,ditandai,lompatan konstanta orientasi pada siklus 379
+,2026-09-22 21:07:00,station_reset,-867106.335,arcsec,ditandai,lompatan konstanta orientasi pada siklus 380
+,2026-09-22 22:05:00,station_reset,-866485.565,arcsec,ditandai,lompatan konstanta orientasi pada siklus 381
+,2026-09-22 23:05:00,station_reset,-867105.907,arcsec,ditandai,lompatan konstanta orientasi pada siklus 382
+,2026-09-23 00:04:00,station_reset,8.833,arcsec,ditandai,lompatan konstanta orientasi pada siklus 383
+,2026-09-23 01:05:00,station_reset,-867105.828,arcsec,ditandai,lompatan konstanta orientasi pada siklus 384
+,2026-09-23 02:05:00,station_reset,-866485.916,arcsec,ditandai,lompatan konstanta orientasi pada siklus 385
+,2026-09-23 03:05:00,station_reset,-867107.109,arcsec,ditandai,lompatan konstanta orientasi pada siklus 386
+,2026-09-23 04:03:00,station_reset,8.874,arcsec,ditandai,lompatan konstanta orientasi pada siklus 387
+,2026-09-23 05:05:00,station_reset,-1009102.604,arcsec,ditandai,lompatan konstanta orientasi pada siklus 388
+,2026-09-23 06:06:00,station_reset,-867106.408,arcsec,ditandai,lompatan konstanta orientasi pada siklus 389
+,2026-09-23 07:05:00,station_reset,-866486.022,arcsec,ditandai,lompatan konstanta orientasi pada siklus 390
+,2026-09-23 08:04:00,station_reset,8.864,arcsec,ditandai,lompatan konstanta orientasi pada siklus 391
+,2026-09-23 17:01:00,station_reset,-912528.252,arcsec,ditandai,lompatan konstanta orientasi pada siklus 394
+,2026-09-23 20:03:00,station_reset,10.02,arcsec,ditandai,lompatan konstanta orientasi pada siklus 397
+,2026-09-23 21:05:00,station_reset,-866486.024,arcsec,ditandai,lompatan konstanta orientasi pada siklus 398
+,2026-09-24 00:03:00,station_reset,9.278,arcsec,ditandai,lompatan konstanta orientasi pada siklus 401
+,2026-09-24 01:05:00,station_reset,-944356.937,arcsec,ditandai,lompatan konstanta orientasi pada siklus 402
+,2026-09-24 02:04:00,station_reset,-867105.525,arcsec,ditandai,lompatan konstanta orientasi pada siklus 403
+,2026-09-24 03:04:00,station_reset,-866486.316,arcsec,ditandai,lompatan konstanta orientasi pada siklus 404
+,2026-09-24 04:03:00,station_reset,9.253,arcsec,ditandai,lompatan konstanta orientasi pada siklus 405
+,2026-09-24 05:06:00,station_reset,-865865.721,arcsec,ditandai,lompatan konstanta orientasi pada siklus 406
+,2026-09-24 06:05:00,station_reset,-866486.258,arcsec,ditandai,lompatan konstanta orientasi pada siklus 407
+,2026-09-24 07:05:00,station_reset,-867106.33,arcsec,ditandai,lompatan konstanta orientasi pada siklus 408
+,2026-09-24 08:04:00,station_reset,9.414,arcsec,ditandai,lompatan konstanta orientasi pada siklus 409
+,2026-09-24 17:01:00,station_reset,-912528.565,arcsec,ditandai,lompatan konstanta orientasi pada siklus 412
+,2026-09-24 20:03:00,station_reset,10.617,arcsec,ditandai,lompatan konstanta orientasi pada siklus 415
+,2026-09-24 21:05:00,station_reset,-867108.015,arcsec,ditandai,lompatan konstanta orientasi pada siklus 416
+,2026-09-24 23:05:00,station_reset,-938105.333,arcsec,ditandai,lompatan konstanta orientasi pada siklus 418
+,2026-09-25 00:03:00,station_reset,11.606,arcsec,ditandai,lompatan konstanta orientasi pada siklus 419
+,2026-09-25 01:05:00,station_reset,-867106.631,arcsec,ditandai,lompatan konstanta orientasi pada siklus 420
+,2026-09-25 02:05:00,station_reset,-865866.327,arcsec,ditandai,lompatan konstanta orientasi pada siklus 421
+,2026-09-25 03:05:00,station_reset,-867105.887,arcsec,ditandai,lompatan konstanta orientasi pada siklus 422
+,2026-09-25 04:03:00,station_reset,11.186,arcsec,ditandai,lompatan konstanta orientasi pada siklus 423
+,2026-09-25 05:05:00,station_reset,-865865.371,arcsec,ditandai,lompatan konstanta orientasi pada siklus 424
+,2026-09-25 06:05:00,station_reset,-866486.562,arcsec,ditandai,lompatan konstanta orientasi pada siklus 425
+,2026-09-25 07:05:00,station_reset,-938105.292,arcsec,ditandai,lompatan konstanta orientasi pada siklus 426
+,2026-09-25 08:04:00,station_reset,11.26,arcsec,ditandai,lompatan konstanta orientasi pada siklus 427
+,2026-09-25 17:02:00,station_reset,-911512.543,arcsec,ditandai,lompatan konstanta orientasi pada siklus 430
+,2026-09-25 18:01:00,station_reset,-912529.027,arcsec,ditandai,lompatan konstanta orientasi pada siklus 431
+,2026-09-25 20:03:00,station_reset,10.831,arcsec,ditandai,lompatan konstanta orientasi pada siklus 433
+,2026-09-25 21:05:00,station_reset,-938105.563,arcsec,ditandai,lompatan konstanta orientasi pada siklus 434
+,2026-09-25 23:06:00,station_reset,-943735.154,arcsec,ditandai,lompatan konstanta orientasi pada siklus 436
+,2026-09-26 00:03:00,station_reset,11.231,arcsec,ditandai,lompatan konstanta orientasi pada siklus 437
+,2026-09-26 01:05:00,station_reset,-866487.951,arcsec,ditandai,lompatan konstanta orientasi pada siklus 438
+,2026-09-26 04:03:00,station_reset,11.492,arcsec,ditandai,lompatan konstanta orientasi pada siklus 441
+,2026-09-26 05:05:00,station_reset,-867105.457,arcsec,ditandai,lompatan konstanta orientasi pada siklus 442
+,2026-09-26 06:05:00,station_reset,-938105.142,arcsec,ditandai,lompatan konstanta orientasi pada siklus 443
+,2026-09-26 07:05:00,station_reset,-867107.035,arcsec,ditandai,lompatan konstanta orientasi pada siklus 444
+,2026-09-26 08:03:00,station_reset,11.613,arcsec,ditandai,lompatan konstanta orientasi pada siklus 445
+,2026-09-26 17:01:00,station_reset,-912529.697,arcsec,ditandai,lompatan konstanta orientasi pada siklus 448
+,2026-09-26 19:01:00,station_reset,-911513.897,arcsec,ditandai,lompatan konstanta orientasi pada siklus 450
+,2026-09-26 20:03:00,station_reset,11.043,arcsec,ditandai,lompatan konstanta orientasi pada siklus 451
+,2026-09-26 21:05:00,station_reset,-866486.994,arcsec,ditandai,lompatan konstanta orientasi pada siklus 452
+,2026-09-26 22:04:00,station_reset,-1021605.393,arcsec,ditandai,lompatan konstanta orientasi pada siklus 453
+,2026-09-26 23:04:00,station_reset,-865867.258,arcsec,ditandai,lompatan konstanta orientasi pada siklus 454
+,2026-09-27 00:03:00,station_reset,10.785,arcsec,ditandai,lompatan konstanta orientasi pada siklus 455
+,2026-09-27 01:04:00,station_reset,-1015354.784,arcsec,ditandai,lompatan konstanta orientasi pada siklus 456
+,2026-09-27 03:05:00,station_reset,-938105.441,arcsec,ditandai,lompatan konstanta orientasi pada siklus 458
+,2026-09-27 04:03:00,station_reset,11.029,arcsec,ditandai,lompatan konstanta orientasi pada siklus 459
+,2026-09-27 05:05:00,station_reset,-1009102.714,arcsec,ditandai,lompatan konstanta orientasi pada siklus 460
+,2026-09-27 06:05:00,station_reset,-866486.659,arcsec,ditandai,lompatan konstanta orientasi pada siklus 461
+,2026-09-27 07:06:00,station_reset,-867108.02,arcsec,ditandai,lompatan konstanta orientasi pada siklus 462
+,2026-09-27 08:05:00,station_reset,11.085,arcsec,ditandai,lompatan konstanta orientasi pada siklus 463
+,2026-09-27 17:02:00,station_reset,-912528.423,arcsec,ditandai,lompatan konstanta orientasi pada siklus 466
+,2026-09-27 18:01:00,station_reset,-917872.203,arcsec,ditandai,lompatan konstanta orientasi pada siklus 467
+,2026-09-27 19:01:00,station_reset,-912528.405,arcsec,ditandai,lompatan konstanta orientasi pada siklus 468
+,2026-09-27 20:03:00,station_reset,12.171,arcsec,ditandai,lompatan konstanta orientasi pada siklus 469
+,2026-09-27 21:05:00,station_reset,-866487.47,arcsec,ditandai,lompatan konstanta orientasi pada siklus 470
+,2026-09-27 23:05:00,station_reset,-1015353.787,arcsec,ditandai,lompatan konstanta orientasi pada siklus 472
+,2026-09-28 00:03:00,station_reset,13.584,arcsec,ditandai,lompatan konstanta orientasi pada siklus 473
+,2026-09-28 01:05:00,station_reset,-1009102.756,arcsec,ditandai,lompatan konstanta orientasi pada siklus 474
+,2026-09-28 02:07:00,station_reset,-1021605.086,arcsec,ditandai,lompatan konstanta orientasi pada siklus 475
+,2026-09-28 04:02:00,station_reset,12.815,arcsec,ditandai,lompatan konstanta orientasi pada siklus 476
+,2026-09-28 07:06:00,station_reset,-1015353.895,arcsec,ditandai,lompatan konstanta orientasi pada siklus 477
+,2026-09-28 08:03:00,station_reset,12.66,arcsec,ditandai,lompatan konstanta orientasi pada siklus 478
+,2026-09-28 17:01:00,station_reset,-925001.682,arcsec,ditandai,lompatan konstanta orientasi pada siklus 481
+,2026-09-28 19:01:00,station_reset,-917872.284,arcsec,ditandai,lompatan konstanta orientasi pada siklus 483
+,2026-09-28 20:03:00,station_reset,13.355,arcsec,ditandai,lompatan konstanta orientasi pada siklus 484
+,2026-09-28 21:06:00,station_reset,-1014749.099,arcsec,ditandai,lompatan konstanta orientasi pada siklus 485
+,2026-09-28 22:05:00,station_reset,-1015354.637,arcsec,ditandai,lompatan konstanta orientasi pada siklus 486
+,2026-09-28 23:05:00,station_reset,-1009133.76,arcsec,ditandai,lompatan konstanta orientasi pada siklus 487
+,2026-09-29 00:01:00,station_reset,13.184,arcsec,ditandai,lompatan konstanta orientasi pada siklus 488
+,2026-09-29 01:05:00,station_reset,-1009134.19,arcsec,ditandai,lompatan konstanta orientasi pada siklus 489
+,2026-09-29 02:05:00,station_reset,-1014749.956,arcsec,ditandai,lompatan konstanta orientasi pada siklus 490
+,2026-09-29 03:05:00,station_reset,-1009133.963,arcsec,ditandai,lompatan konstanta orientasi pada siklus 491
+,2026-09-29 04:03:00,station_reset,13.582,arcsec,ditandai,lompatan konstanta orientasi pada siklus 492
+,2026-09-29 05:05:00,station_reset,-1011941.971,arcsec,ditandai,lompatan konstanta orientasi pada siklus 493
+,2026-09-29 06:05:00,station_reset,-1009133.583,arcsec,ditandai,lompatan konstanta orientasi pada siklus 494
+,2026-09-29 07:05:00,station_reset,-938105.98,arcsec,ditandai,lompatan konstanta orientasi pada siklus 495
+,2026-09-29 08:04:00,station_reset,13.555,arcsec,ditandai,lompatan konstanta orientasi pada siklus 496
+,2026-09-29 18:01:00,station_reset,-930784.441,arcsec,ditandai,lompatan konstanta orientasi pada siklus 499
+,2026-09-29 19:01:00,station_reset,-923216.81,arcsec,ditandai,lompatan konstanta orientasi pada siklus 500
+,2026-09-29 20:03:00,station_reset,13.834,arcsec,ditandai,lompatan konstanta orientasi pada siklus 501
+,2026-09-29 21:05:00,station_reset,-1015354.562,arcsec,ditandai,lompatan konstanta orientasi pada siklus 502
+,2026-09-29 23:05:00,station_reset,-1014749.283,arcsec,ditandai,lompatan konstanta orientasi pada siklus 504
+,2026-09-30 00:03:00,station_reset,13.948,arcsec,ditandai,lompatan konstanta orientasi pada siklus 505
+,2026-09-30 01:05:00,station_reset,-1015354.485,arcsec,ditandai,lompatan konstanta orientasi pada siklus 506
+,2026-09-30 04:03:00,station_reset,13.843,arcsec,ditandai,lompatan konstanta orientasi pada siklus 509
+,2026-09-30 05:05:00,station_reset,-1021604.208,arcsec,ditandai,lompatan konstanta orientasi pada siklus 510
+,2026-09-30 06:05:00,station_reset,-1009103.691,arcsec,ditandai,lompatan konstanta orientasi pada siklus 511
+,2026-09-30 07:06:00,station_reset,-867107.718,arcsec,ditandai,lompatan konstanta orientasi pada siklus 512
+,2026-09-30 08:03:00,station_reset,13.854,arcsec,ditandai,lompatan konstanta orientasi pada siklus 513
+,2026-09-30 09:25:00,station_reset,-867105.747,arcsec,ditandai,lompatan konstanta orientasi pada siklus 514
+,2026-09-30 12:04:00,station_reset,14.645,arcsec,ditandai,lompatan konstanta orientasi pada siklus 515
+,2026-09-30 14:23:00,station_reset,-938104.745,arcsec,ditandai,lompatan konstanta orientasi pada siklus 516
+,2026-09-30 16:03:00,station_reset,13.903,arcsec,ditandai,lompatan konstanta orientasi pada siklus 517
+,2026-09-30 17:01:00,station_reset,-917872.683,arcsec,ditandai,lompatan konstanta orientasi pada siklus 518
+,2026-09-30 17:34:00,station_reset,-1009118.488,arcsec,ditandai,lompatan konstanta orientasi pada siklus 519
+,2026-09-30 18:01:00,station_reset,-925000.795,arcsec,ditandai,lompatan konstanta orientasi pada siklus 520
+,2026-09-30 18:34:00,station_reset,-1011926.369,arcsec,ditandai,lompatan konstanta orientasi pada siklus 521
+,2026-09-30 19:01:00,station_reset,-925001.148,arcsec,ditandai,lompatan konstanta orientasi pada siklus 522
+,2026-09-30 19:33:00,station_reset,-1009133.715,arcsec,ditandai,lompatan konstanta orientasi pada siklus 523
+,2026-09-30 20:03:00,station_reset,14.897,arcsec,ditandai,lompatan konstanta orientasi pada siklus 524
+,2026-09-30 21:04:00,station_reset,-1015354.912,arcsec,ditandai,lompatan konstanta orientasi pada siklus 525
+,2026-09-30 21:34:00,station_reset,-1009119.187,arcsec,ditandai,lompatan konstanta orientasi pada siklus 526
+,2026-09-30 22:05:00,station_reset,-938106.079,arcsec,ditandai,lompatan konstanta orientasi pada siklus 527
+,2026-09-30 23:34:00,station_reset,-1009103.071,arcsec,ditandai,lompatan konstanta orientasi pada siklus 530
+,2026-10-01 00:03:00,station_reset,16.959,arcsec,ditandai,lompatan konstanta orientasi pada siklus 531
+,2026-10-01 01:05:00,station_reset,-1014749.54,arcsec,ditandai,lompatan konstanta orientasi pada siklus 532
+,2026-10-01 01:34:00,station_reset,-1011926.291,arcsec,ditandai,lompatan konstanta orientasi pada siklus 533
+,2026-10-01 02:05:00,station_reset,-1009133.967,arcsec,ditandai,lompatan konstanta orientasi pada siklus 534
+,2026-10-01 02:34:00,station_reset,-1009118.772,arcsec,ditandai,lompatan konstanta orientasi pada siklus 535
+,2026-10-01 03:05:00,station_reset,-1009103.361,arcsec,ditandai,lompatan konstanta orientasi pada siklus 536
+,2026-10-01 03:34:00,station_reset,-1009119.095,arcsec,ditandai,lompatan konstanta orientasi pada siklus 537
+,2026-10-01 04:03:00,station_reset,14.695,arcsec,ditandai,lompatan konstanta orientasi pada siklus 538
+,2026-10-01 05:05:00,station_reset,-1015354.172,arcsec,ditandai,lompatan konstanta orientasi pada siklus 539
+,2026-10-01 06:04:00,station_reset,-1009103.069,arcsec,ditandai,lompatan konstanta orientasi pada siklus 541
+,2026-10-01 06:34:00,station_reset,-867106.612,arcsec,ditandai,lompatan konstanta orientasi pada siklus 542
+BS_HL_5,2026-09-21 20:09:00,reinstall,58.252,mm,segmen_baru,pergeseran level 24 jam 58 mm melebihi 50 mm - dugaan pemasangan ulang / target diganti
+DAM5_1,2026-09-21 20:22:00,loncatan,20.329,mm,ditandai,pergeseran level 24 jam 20 mm (ambang 20) - verifikasi lapangan
+DAM5_5,2026-09-10 08:28:00,gap,116.0,jam,segmen_baru,
+DAM5_7,2026-09-21 20:23:00,loncatan,20.597,mm,ditandai,pergeseran level 24 jam 21 mm (ambang 20) - verifikasi lapangan
+DAM5_8,2026-09-21 20:22:00,loncatan,21.36,mm,ditandai,pergeseran level 24 jam 21 mm (ambang 20) - verifikasi lapangan
+HLO-105,2026-09-21 20:20:00,loncatan,38.633,mm,ditandai,pergeseran level 24 jam 39 mm (ambang 25) - verifikasi lapangan
+HLO-106,2026-09-21 20:17:00,loncatan,40.302,mm,ditandai,pergeseran level 24 jam 40 mm (ambang 25) - verifikasi lapangan
+HLO-107,2026-09-21 20:18:00,loncatan,48.479,mm,ditandai,pergeseran level 24 jam 48 mm (ambang 28) - verifikasi lapangan
+HLO-112,2026-09-21 20:15:00,loncatan,46.003,mm,ditandai,pergeseran level 24 jam 46 mm (ambang 30) - verifikasi lapangan
+HLO-122,2026-09-21 20:21:00,loncatan,40.168,mm,ditandai,pergeseran level 24 jam 40 mm (ambang 31) - verifikasi lapangan
+HLO-128,2026-09-21 20:19:00,loncatan,45.064,mm,ditandai,pergeseran level 24 jam 45 mm (ambang 29) - verifikasi lapangan
+HLO-129,2026-09-07 08:19:00,loncatan,28.32,mm,ditandai,pergeseran level 24 jam 28 mm (ambang 23) - verifikasi lapangan
+HLO-129,2026-09-21 20:16:00,loncatan,46.578,mm,ditandai,pergeseran level 24 jam 47 mm (ambang 23) - verifikasi lapangan
+HLO-130,2026-09-22 04:17:00,loncatan,44.147,mm,ditandai,pergeseran level 24 jam 44 mm (ambang 32) - verifikasi lapangan
+HLO-130,2026-09-22 08:15:00,loncatan,43.937,mm,ditandai,pergeseran level 24 jam 44 mm (ambang 32) - verifikasi lapangan
+HLO-131,2026-09-21 20:07:00,loncatan,27.812,mm,ditandai,pergeseran level 24 jam 28 mm (ambang 20) - verifikasi lapangan
+HLO-133,2026-09-21 20:08:00,loncatan,30.257,mm,ditandai,pergeseran level 24 jam 30 mm (ambang 20) - verifikasi lapangan
+HLO-145,2026-09-09 12:29:00,gap,119.95,jam,segmen_baru,
+HLO-145,2026-09-15 12:27:00,gap,143.967,jam,segmen_baru,
+HLO-154,2026-09-21 20:06:00,loncatan,26.861,mm,ditandai,pergeseran level 24 jam 27 mm (ambang 20) - verifikasi lapangan
+HLO-155,2026-09-21 20:06:00,loncatan,24.073,mm,ditandai,pergeseran level 24 jam 24 mm (ambang 20) - verifikasi lapangan
+HLO-156,2026-09-21 20:05:00,loncatan,27.946,mm,ditandai,pergeseran level 24 jam 28 mm (ambang 20) - verifikasi lapangan
+HLO-157,2026-09-21 20:09:00,loncatan,27.686,mm,ditandai,pergeseran level 24 jam 28 mm (ambang 20) - verifikasi lapangan
+HLO-169,2026-09-21 20:07:00,loncatan,29.129,mm,ditandai,pergeseran level 24 jam 29 mm (ambang 20) - verifikasi lapangan
+HLO-170,2026-09-21 20:07:00,loncatan,27.753,mm,ditandai,pergeseran level 24 jam 28 mm (ambang 20) - verifikasi lapangan
+HLO-173,2026-09-21 20:04:00,loncatan,26.196,mm,ditandai,pergeseran level 24 jam 26 mm (ambang 20) - verifikasi lapangan
+HLO-174,2026-09-21 20:05:00,loncatan,27.65,mm,ditandai,pergeseran level 24 jam 28 mm (ambang 20) - verifikasi lapangan
+HLO-181,2026-09-21 20:06:00,loncatan,29.534,mm,ditandai,pergeseran level 24 jam 30 mm (ambang 20) - verifikasi lapangan
+HLO-182,2026-09-21 20:03:00,loncatan,22.5,mm,ditandai,pergeseran level 24 jam 23 mm (ambang 21) - verifikasi lapangan
+HLO-189,2026-09-21 20:19:00,loncatan,48.348,mm,ditandai,pergeseran level 24 jam 48 mm (ambang 29) - verifikasi lapangan
+HLO-191,2026-09-21 20:13:00,loncatan,45.593,mm,ditandai,pergeseran level 24 jam 46 mm (ambang 26) - verifikasi lapangan
+HLO-206,2026-09-21 20:19:00,loncatan,27.189,mm,ditandai,pergeseran level 24 jam 27 mm (ambang 20) - verifikasi lapangan
+HLO-207,2026-09-21 20:17:00,loncatan,24.052,mm,ditandai,pergeseran level 24 jam 24 mm (ambang 20) - verifikasi lapangan
+HLO-208,2026-09-21 20:14:00,loncatan,24.754,mm,ditandai,pergeseran level 24 jam 25 mm (ambang 20) - verifikasi lapangan
+HLO-209,2026-09-21 20:11:00,loncatan,23.622,mm,ditandai,pergeseran level 24 jam 24 mm (ambang 20) - verifikasi lapangan
+HLO-231,2026-09-21 20:21:00,loncatan,49.031,mm,ditandai,pergeseran level 24 jam 49 mm (ambang 27) - verifikasi lapangan
+HLO-239,2026-09-14 12:12:00,gap,120.017,jam,segmen_baru,
+HLO-239,2026-09-22 08:11:00,reinstall,55.118,mm,segmen_baru,pergeseran level 24 jam 55 mm melebihi 50 mm - dugaan pemasangan ulang / target diganti
+HLO-240,2026-09-21 20:19:00,loncatan,44.688,mm,ditandai,pergeseran level 24 jam 45 mm (ambang 25) - verifikasi lapangan
+HLO-243,2026-09-21 20:10:00,reinstall,61.127,mm,segmen_baru,pergeseran level 24 jam 61 mm melebihi 50 mm - dugaan pemasangan ulang / target diganti
+HLO-248,2026-09-21 20:13:00,loncatan,27.668,mm,ditandai,pergeseran level 24 jam 28 mm (ambang 23) - verifikasi lapangan
+HLO-251,2026-09-21 20:08:00,reinstall,53.512,mm,segmen_baru,pergeseran level 24 jam 54 mm melebihi 50 mm - dugaan pemasangan ulang / target diganti
+HLO-254,2026-09-21 20:10:00,reinstall,60.407,mm,segmen_baru,pergeseran level 24 jam 60 mm melebihi 50 mm - dugaan pemasangan ulang / target diganti
+HLO-255,2026-09-21 20:08:00,reinstall,60.345,mm,segmen_baru,pergeseran level 24 jam 60 mm melebihi 50 mm - dugaan pemasangan ulang / target diganti
+HLO-256,2026-09-21 20:09:00,reinstall,59.973,mm,segmen_baru,pergeseran level 24 jam 60 mm melebihi 50 mm - dugaan pemasangan ulang / target diganti
+HLO-257,2026-09-21 20:10:00,reinstall,64.327,mm,segmen_baru,pergeseran level 24 jam 64 mm melebihi 50 mm - dugaan pemasangan ulang / target diganti
+HLO-260,2026-09-21 20:08:00,loncatan,31.949,mm,ditandai,pergeseran level 24 jam 32 mm (ambang 21) - verifikasi lapangan
+HLO-261,2026-09-21 20:07:00,loncatan,33.742,mm,ditandai,pergeseran level 24 jam 34 mm (ambang 20) - verifikasi lapangan
+HLO-262,2026-09-21 20:06:00,loncatan,33.653,mm,ditandai,pergeseran level 24 jam 34 mm (ambang 20) - verifikasi lapangan
+HLO-263,2026-09-21 20:04:00,loncatan,30.021,mm,ditandai,pergeseran level 24 jam 30 mm (ambang 20) - verifikasi lapangan
+HLO-264,2026-09-21 20:03:00,loncatan,30.757,mm,ditandai,pergeseran level 24 jam 31 mm (ambang 20) - verifikasi lapangan
+HLO-265,2026-09-21 20:13:00,loncatan,22.277,mm,ditandai,pergeseran level 24 jam 22 mm (ambang 20) - verifikasi lapangan
+HLO-266,2026-09-22 08:30:00,loncatan,47.181,mm,ditandai,pergeseran level 24 jam 47 mm (ambang 43) - verifikasi lapangan
+HLO-271,2026-09-22 00:04:00,reinstall,58.344,mm,segmen_baru,pergeseran level 24 jam 58 mm melebihi 50 mm - dugaan pemasangan ulang / target diganti
+HLO-279,2026-09-07 08:20:00,loncatan,33.272,mm,ditandai,pergeseran level 24 jam 33 mm (ambang 29) - verifikasi lapangan
+HLO-279,2026-09-21 20:18:00,loncatan,46.317,mm,ditandai,pergeseran level 24 jam 46 mm (ambang 29) - verifikasi lapangan
+HLO-280,2026-09-21 20:16:00,loncatan,45.777,mm,ditandai,pergeseran level 24 jam 46 mm (ambang 31) - verifikasi lapangan
+HLO-281,2026-09-21 20:14:00,loncatan,47.618,mm,ditandai,pergeseran level 24 jam 48 mm (ambang 27) - verifikasi lapangan
+HLO-289,2026-09-07 08:22:00,loncatan,29.9,mm,ditandai,pergeseran level 24 jam 30 mm (ambang 27) - verifikasi lapangan
+HLO-289,2026-09-21 20:19:00,loncatan,49.492,mm,ditandai,pergeseran level 24 jam 49 mm (ambang 27) - verifikasi lapangan
+HLO-297,2026-09-21 20:07:00,loncatan,34.315,mm,ditandai,pergeseran level 24 jam 34 mm (ambang 20) - verifikasi lapangan
+HLO-298,2026-09-21 20:09:00,loncatan,35.655,mm,ditandai,pergeseran level 24 jam 36 mm (ambang 24) - verifikasi lapangan
+HLO-301,2026-09-21 20:16:00,loncatan,39.582,mm,ditandai,pergeseran level 24 jam 40 mm (ambang 20) - verifikasi lapangan
+HLO-302,2026-09-22 04:14:00,loncatan,42.609,mm,ditandai,pergeseran level 24 jam 43 mm (ambang 25) - verifikasi lapangan
+HLO-307,2026-09-21 20:06:00,loncatan,34.893,mm,ditandai,pergeseran level 24 jam 35 mm (ambang 20) - verifikasi lapangan
+HLO-308,2026-09-21 20:05:00,loncatan,30.307,mm,ditandai,pergeseran level 24 jam 30 mm (ambang 20) - verifikasi lapangan
+HLO-309,2026-09-21 20:04:00,loncatan,29.707,mm,ditandai,pergeseran level 24 jam 30 mm (ambang 20) - verifikasi lapangan
+HLO-320,2026-09-22 08:20:00,loncatan,48.662,mm,ditandai,pergeseran level 24 jam 49 mm (ambang 38) - verifikasi lapangan
+HLO-321,2026-09-16 08:25:00,gap,116.0,jam,segmen_baru,
+HLO-321,2026-09-29 12:31:00,gap,144.067,jam,segmen_baru,
+HLO-325,2026-09-22 08:28:00,loncatan,47.127,mm,ditandai,pergeseran level 24 jam 47 mm (ambang 32) - verifikasi lapangan
+HLO-326,2026-09-21 20:03:00,loncatan,32.284,mm,ditandai,pergeseran level 24 jam 32 mm (ambang 20) - verifikasi lapangan
+HLO-327,2026-09-21 12:03:00,loncatan,34.767,mm,ditandai,pergeseran level 24 jam 35 mm (ambang 20) - verifikasi lapangan
+HLO-327,2026-09-21 20:03:00,loncatan,36.073,mm,ditandai,pergeseran level 24 jam 36 mm (ambang 20) - verifikasi lapangan
+HLO-333,2026-09-21 20:29:00,loncatan,30.29,mm,ditandai,pergeseran level 24 jam 30 mm (ambang 24) - verifikasi lapangan
+HLO-334,2026-09-22 12:32:00,loncatan,28.156,mm,ditandai,pergeseran level 24 jam 28 mm (ambang 25) - verifikasi lapangan
+HLO-337,2026-09-21 20:28:00,loncatan,36.404,mm,ditandai,pergeseran level 24 jam 36 mm (ambang 20) - verifikasi lapangan
+HLO-338,2026-09-21 20:26:00,loncatan,33.354,mm,ditandai,pergeseran level 24 jam 33 mm (ambang 21) - verifikasi lapangan
+HLO-339,2026-09-21 20:24:00,loncatan,32.485,mm,ditandai,pergeseran level 24 jam 32 mm (ambang 20) - verifikasi lapangan
+HLO-340,2026-09-21 20:22:00,loncatan,35.433,mm,ditandai,pergeseran level 24 jam 35 mm (ambang 23) - verifikasi lapangan
+HLO-341,2026-09-21 20:04:00,loncatan,33.049,mm,ditandai,pergeseran level 24 jam 33 mm (ambang 20) - verifikasi lapangan
+HLO-342,2026-09-21 20:05:00,loncatan,33.23,mm,ditandai,pergeseran level 24 jam 33 mm (ambang 20) - verifikasi lapangan
+HLO-343,2026-09-21 20:07:00,loncatan,33.768,mm,ditandai,pergeseran level 24 jam 34 mm (ambang 20) - verifikasi lapangan
+HLO-344,2026-09-21 20:09:00,loncatan,35.078,mm,ditandai,pergeseran level 24 jam 35 mm (ambang 20) - verifikasi lapangan
+HLO-345,2026-09-21 20:19:00,loncatan,36.021,mm,ditandai,pergeseran level 24 jam 36 mm (ambang 20) - verifikasi lapangan
+HLO-346,2026-09-21 20:21:00,loncatan,34.46,mm,ditandai,pergeseran level 24 jam 34 mm (ambang 20) - verifikasi lapangan
+HLO-347,2026-09-21 20:22:00,loncatan,34.496,mm,ditandai,pergeseran level 24 jam 34 mm (ambang 24) - verifikasi lapangan
+HLO-348,2026-09-21 20:24:00,loncatan,35.302,mm,ditandai,pergeseran level 24 jam 35 mm (ambang 22) - verifikasi lapangan
+HLO-349,2026-09-21 20:26:00,loncatan,34.587,mm,ditandai,pergeseran level 24 jam 35 mm (ambang 20) - verifikasi lapangan
+HLO-350,2026-09-21 20:25:00,loncatan,32.833,mm,ditandai,pergeseran level 24 jam 33 mm (ambang 20) - verifikasi lapangan
+HLO-351,2026-09-21 20:27:00,loncatan,36.29,mm,ditandai,pergeseran level 24 jam 36 mm (ambang 22) - verifikasi lapangan
+HLO-352,2026-09-21 20:29:00,loncatan,35.167,mm,ditandai,pergeseran level 24 jam 35 mm (ambang 20) - verifikasi lapangan
+HLO-353,2026-09-07 08:34:00,loncatan,23.537,mm,ditandai,pergeseran level 24 jam 24 mm (ambang 22) - verifikasi lapangan
+HLO-353,2026-09-21 20:30:00,loncatan,35.795,mm,ditandai,pergeseran level 24 jam 36 mm (ambang 22) - verifikasi lapangan
+HLO-354,2026-09-21 20:25:00,loncatan,38.942,mm,ditandai,pergeseran level 24 jam 39 mm (ambang 20) - verifikasi lapangan
+HLO-355,2026-09-21 20:27:00,loncatan,36.592,mm,ditandai,pergeseran level 24 jam 37 mm (ambang 22) - verifikasi lapangan
+HLO-391,2026-09-21 20:10:00,loncatan,38.451,mm,ditandai,pergeseran level 24 jam 38 mm (ambang 31) - verifikasi lapangan
+HLO-392,2026-09-21 20:08:00,loncatan,34.514,mm,ditandai,pergeseran level 24 jam 35 mm (ambang 26) - verifikasi lapangan
+HLO-393,2026-09-21 20:07:00,loncatan,39.332,mm,ditandai,pergeseran level 24 jam 39 mm (ambang 26) - verifikasi lapangan
+HLO-394,2026-09-21 20:06:00,loncatan,36.204,mm,ditandai,pergeseran level 24 jam 36 mm (ambang 20) - verifikasi lapangan
+HLO-395,2026-09-21 20:06:00,loncatan,35.064,mm,ditandai,pergeseran level 24 jam 35 mm (ambang 26) - verifikasi lapangan
+HLO-396,2026-09-21 20:05:00,loncatan,37.766,mm,ditandai,pergeseran level 24 jam 38 mm (ambang 20) - verifikasi lapangan
+HLO-397,2026-09-21 20:04:00,loncatan,34.154,mm,ditandai,pergeseran level 24 jam 34 mm (ambang 20) - verifikasi lapangan
+HLO-402,2026-09-07 08:27:00,loncatan,21.471,mm,ditandai,pergeseran level 24 jam 21 mm (ambang 20) - verifikasi lapangan
+HLO-402,2026-09-21 20:23:00,loncatan,34.785,mm,ditandai,pergeseran level 24 jam 35 mm (ambang 20) - verifikasi lapangan
+HLO-403,2026-09-21 20:22:00,loncatan,35.788,mm,ditandai,pergeseran level 24 jam 36 mm (ambang 23) - verifikasi lapangan
+HLO-77,2026-09-21 20:20:00,loncatan,38.062,mm,ditandai,pergeseran level 24 jam 38 mm (ambang 24) - verifikasi lapangan
+HLO-80,2026-09-22 08:17:00,loncatan,37.135,mm,ditandai,pergeseran level 24 jam 37 mm (ambang 28) - verifikasi lapangan
+HLO-81,2026-09-21 20:18:00,loncatan,39.102,mm,ditandai,pergeseran level 24 jam 39 mm (ambang 25) - verifikasi lapangan
+HLO-93,2026-09-21 20:11:00,loncatan,34.355,mm,ditandai,pergeseran level 24 jam 34 mm (ambang 22) - verifikasi lapangan
+HLO-94,2026-09-21 20:14:00,loncatan,37.034,mm,ditandai,pergeseran level 24 jam 37 mm (ambang 23) - verifikasi lapangan
+HLO-W-15,2026-09-06 01:07:00,gap,89.983,jam,segmen_baru,
+HLO-W-15,2026-09-19 07:08:00,gap,121.0,jam,segmen_baru,
+HLO-W-17,2026-09-22 07:08:00,gap,127.017,jam,segmen_baru,
+SP_05,2026-09-21 20:34:00,loncatan,32.932,mm,ditandai,pergeseran level 24 jam 33 mm (ambang 31) - verifikasi lapangan
+SP_09,2026-09-21 20:34:00,loncatan,32.573,mm,ditandai,pergeseran level 24 jam 33 mm (ambang 29) - verifikasi lapangan
+SP_10,2026-09-21 20:33:00,loncatan,36.321,mm,ditandai,pergeseran level 24 jam 36 mm (ambang 28) - verifikasi lapangan
+SP_15,2026-09-21 20:33:00,loncatan,29.402,mm,ditandai,pergeseran level 24 jam 29 mm (ambang 20) - verifikasi lapangan
+SP_16,2026-09-21 20:33:00,loncatan,30.17,mm,ditandai,pergeseran level 24 jam 30 mm (ambang 27) - verifikasi lapangan
+SP_17,2026-09-21 20:33:00,loncatan,31.484,mm,ditandai,pergeseran level 24 jam 31 mm (ambang 27) - verifikasi lapangan
+SP_20,2026-09-21 20:33:00,loncatan,24.875,mm,ditandai,pergeseran level 24 jam 25 mm (ambang 22) - verifikasi lapangan
+SP_21,2026-09-21 20:32:00,loncatan,31.125,mm,ditandai,pergeseran level 24 jam 31 mm (ambang 26) - verifikasi lapangan
+SP_22,2026-09-21 20:32:00,loncatan,29.791,mm,ditandai,pergeseran level 24 jam 30 mm (ambang 25) - verifikasi lapangan
+SP_24,2026-09-21 20:32:00,loncatan,28.918,mm,ditandai,pergeseran level 24 jam 29 mm (ambang 20) - verifikasi lapangan
+SP_25,2026-09-21 20:32:00,loncatan,25.402,mm,ditandai,pergeseran level 24 jam 25 mm (ambang 21) - verifikasi lapangan
+SP_26,2026-09-21 20:31:00,loncatan,28.443,mm,ditandai,pergeseran level 24 jam 28 mm (ambang 20) - verifikasi lapangan
+SP_27,2026-09-21 20:31:00,loncatan,26.125,mm,ditandai,pergeseran level 24 jam 26 mm (ambang 20) - verifikasi lapangan
+SP_29,2026-09-21 20:31:00,loncatan,22.5,mm,ditandai,pergeseran level 24 jam 22 mm (ambang 20) - verifikasi lapangan
+SP_30,2026-09-21 20:29:00,loncatan,25.392,mm,ditandai,pergeseran level 24 jam 25 mm (ambang 20) - verifikasi lapangan
+SP_31,2026-09-21 20:30:00,loncatan,27.221,mm,ditandai,pergeseran level 24 jam 27 mm (ambang 21) - verifikasi lapangan
+SP_32,2026-09-21 20:30:00,loncatan,28.922,mm,ditandai,pergeseran level 24 jam 29 mm (ambang 20) - verifikasi lapangan
+SP_33,2026-09-21 20:30:00,loncatan,29.339,mm,ditandai,pergeseran level 24 jam 29 mm (ambang 21) - verifikasi lapangan
+SP_36,2026-09-21 20:26:00,loncatan,25.035,mm,ditandai,pergeseran level 24 jam 25 mm (ambang 20) - verifikasi lapangan
+SP_38,2026-09-21 20:27:00,loncatan,31.137,mm,ditandai,pergeseran level 24 jam 31 mm (ambang 22) - verifikasi lapangan
+SP_39,2026-09-21 20:27:00,loncatan,29.449,mm,ditandai,pergeseran level 24 jam 29 mm (ambang 20) - verifikasi lapangan
+SP_42,2026-09-21 20:23:00,loncatan,26.439,mm,ditandai,pergeseran level 24 jam 26 mm (ambang 20) - verifikasi lapangan
+SP_43,2026-09-21 20:23:00,loncatan,27.083,mm,ditandai,pergeseran level 24 jam 27 mm (ambang 20) - verifikasi lapangan
+SP_45,2026-09-07 08:27:00,loncatan,26.019,mm,ditandai,pergeseran level 24 jam 26 mm (ambang 22) - verifikasi lapangan
+SP_45,2026-09-21 20:24:00,loncatan,33.064,mm,ditandai,pergeseran level 24 jam 33 mm (ambang 22) - verifikasi lapangan
+SP_47,2026-09-21 20:21:00,loncatan,33.956,mm,ditandai,pergeseran level 24 jam 34 mm (ambang 22) - verifikasi lapangan
+SP_48,2026-09-21 20:21:00,loncatan,25.817,mm,ditandai,pergeseran level 24 jam 26 mm (ambang 20) - verifikasi lapangan
+SP_50,2026-09-21 20:20:00,loncatan,30.274,mm,ditandai,pergeseran level 24 jam 30 mm (ambang 20) - verifikasi lapangan
+SP_51,2026-09-21 20:20:00,loncatan,28.16,mm,ditandai,pergeseran level 24 jam 28 mm (ambang 22) - verifikasi lapangan
+SP_52,2026-09-21 20:20:00,loncatan,29.223,mm,ditandai,pergeseran level 24 jam 29 mm (ambang 20) - verifikasi lapangan
+SP_53,2026-09-21 20:19:00,loncatan,35.185,mm,ditandai,pergeseran level 24 jam 35 mm (ambang 25) - verifikasi lapangan
+SP_54,2026-09-21 20:16:00,loncatan,37.017,mm,ditandai,pergeseran level 24 jam 37 mm (ambang 20) - verifikasi lapangan
+SP_55,2026-09-18 16:19:00,gap,244.017,jam,segmen_baru,
+SP_57,2026-09-21 20:17:00,loncatan,29.009,mm,ditandai,pergeseran level 24 jam 29 mm (ambang 20) - verifikasi lapangan
+SP_58,2026-09-21 20:16:00,loncatan,33.038,mm,ditandai,pergeseran level 24 jam 33 mm (ambang 25) - verifikasi lapangan
+SP_59,2026-09-21 20:14:00,loncatan,35.121,mm,ditandai,pergeseran level 24 jam 35 mm (ambang 21) - verifikasi lapangan
+SP_60,2026-09-22 00:15:00,loncatan,26.292,mm,ditandai,pergeseran level 24 jam 26 mm (ambang 20) - verifikasi lapangan
+SP_61,2026-09-21 20:14:00,loncatan,25.224,mm,ditandai,pergeseran level 24 jam 25 mm (ambang 20) - verifikasi lapangan
+SP_62,2026-09-21 20:13:00,loncatan,27.208,mm,ditandai,pergeseran level 24 jam 27 mm (ambang 20) - verifikasi lapangan
+SP_63,2026-09-21 20:12:00,loncatan,27.726,mm,ditandai,pergeseran level 24 jam 28 mm (ambang 20) - verifikasi lapangan
+SP_64,2026-09-21 20:11:00,loncatan,36.473,mm,ditandai,pergeseran level 24 jam 36 mm (ambang 20) - verifikasi lapangan
+SP_74,2026-09-21 20:17:00,loncatan,36.056,mm,ditandai,pergeseran level 24 jam 36 mm (ambang 29) - verifikasi lapangan
+SP_76,2026-09-21 20:13:00,loncatan,29.656,mm,ditandai,pergeseran level 24 jam 30 mm (ambang 20) - verifikasi lapangan
+SP_77,2026-09-21 20:15:00,loncatan,33.064,mm,ditandai,pergeseran level 24 jam 33 mm (ambang 20) - verifikasi lapangan
+SP_78,2026-09-21 20:17:00,loncatan,37.014,mm,ditandai,pergeseran level 24 jam 37 mm (ambang 20) - verifikasi lapangan
+SP_81,2026-09-21 20:22:00,loncatan,32.206,mm,ditandai,pergeseran level 24 jam 32 mm (ambang 30) - verifikasi lapangan
+STG4N-1,2026-09-21 20:11:00,reinstall,56.862,mm,segmen_baru,pergeseran level 24 jam 57 mm melebihi 50 mm - dugaan pemasangan ulang / target diganti
+STG4N-10,2026-09-21 20:14:00,reinstall,66.622,mm,segmen_baru,pergeseran level 24 jam 67 mm melebihi 50 mm - dugaan pemasangan ulang / target diganti
+STG4N-12,2026-09-22 00:16:00,reinstall,69.441,mm,segmen_baru,pergeseran level 24 jam 69 mm melebihi 50 mm - dugaan pemasangan ulang / target diganti
+STG4N-13,2026-09-21 20:17:00,reinstall,55.832,mm,segmen_baru,pergeseran level 24 jam 56 mm melebihi 50 mm - dugaan pemasangan ulang / target diganti
+STG4N-2,2026-09-21 20:12:00,reinstall,62.117,mm,segmen_baru,pergeseran level 24 jam 62 mm melebihi 50 mm - dugaan pemasangan ulang / target diganti
+STG4N-3,2026-09-21 20:12:00,reinstall,69.031,mm,segmen_baru,pergeseran level 24 jam 69 mm melebihi 50 mm - dugaan pemasangan ulang / target diganti
+STG4N-4,2026-09-21 20:11:00,reinstall,61.37,mm,segmen_baru,pergeseran level 24 jam 61 mm melebihi 50 mm - dugaan pemasangan ulang / target diganti
+STG4N-6,2026-09-21 20:13:00,reinstall,59.087,mm,segmen_baru,pergeseran level 24 jam 59 mm melebihi 50 mm - dugaan pemasangan ulang / target diganti
+STG4N-7,2026-09-21 20:14:00,reinstall,62.574,mm,segmen_baru,pergeseran level 24 jam 63 mm melebihi 50 mm - dugaan pemasangan ulang / target diganti
+STG4N-8,2026-09-21 20:12:00,reinstall,57.726,mm,segmen_baru,pergeseran level 24 jam 58 mm melebihi 50 mm - dugaan pemasangan ulang / target diganti
+STG4N-9,2026-09-21 20:12:00,reinstall,68.031,mm,segmen_baru,pergeseran level 24 jam 68 mm melebihi 50 mm - dugaan pemasangan ulang / target diganti
+HLO-349 / HLO-350,,duplikat_target,2.291,mm,ditandai,posisi baseline identik: target ganda atau salah round list
+DAM5_5,2026-09-03 08:27:00,segmen_pendek,2.0,epoch,dibuang,segmen 0 < 10 epoch
+HLO-145,2026-09-02 12:31:00,segmen_pendek,4.0,epoch,dibuang,segmen 0 < 10 epoch
+HLO-145,2026-09-09 12:29:00,segmen_pendek,1.0,epoch,dibuang,segmen 1 < 10 epoch
+HLO-145,2026-09-15 12:27:00,segmen_pendek,4.0,epoch,dibuang,segmen 2 < 10 epoch
+HLO-195,2026-09-02 12:32:00,segmen_pendek,4.0,epoch,dibuang,segmen 0 < 10 epoch
+HLO-210,2026-09-02 12:30:00,segmen_pendek,3.0,epoch,dibuang,segmen 0 < 10 epoch
+HLO-211,2026-09-02 08:25:00,segmen_pendek,1.0,epoch,dibuang,segmen 0 < 10 epoch
+HLO-317,2026-09-02 16:17:00,segmen_pendek,7.0,epoch,dibuang,segmen 0 < 10 epoch
+HLO-321,2026-09-16 08:25:00,segmen_pendek,6.0,epoch,dibuang,segmen 1 < 10 epoch
+HLO-321,2026-09-29 12:31:00,segmen_pendek,1.0,epoch,dibuang,segmen 2 < 10 epoch
+HLO-R8,2026-09-12 01:04:00,segmen_pendek,1.0,epoch,dibuang,segmen 0 < 10 epoch
+HLO-W-15,2026-09-02 07:08:00,segmen_pendek,1.0,epoch,dibuang,segmen 0 < 10 epoch
+HLO-W-17,2026-09-22 07:08:00,segmen_pendek,1.0,epoch,dibuang,segmen 1 < 10 epoch
+SP_55,2026-09-06 12:20:00,segmen_pendek,2.0,epoch,dibuang,segmen 0 < 10 epoch
+,,referensi_kosong,0.0,prisma,ditandai,"TIDAK ADA prisma referensi ditetapkan - koreksi datum TIDAK diterapkan. Perpindahan bersifat relatif terhadap stasiun, bukan terhadap kerangka stabil."
