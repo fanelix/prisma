@@ -3,15 +3,22 @@
 import numpy as np
 import pandas as pd
 
-PARAMETERS = [
-    "rotation_arcsec",
-    "translation_e_mm",
-    "translation_n_mm",
-    "scale_ppm",
+HORIZONTAL = ["rotation_arcsec", "translation_e_mm", "translation_n_mm", "scale_ppm"]
+# Vertical models, richest first. "full" is the handoff model; the others drop terms the
+# geometry cannot separate. In "merged" the index absorbs the tilt along the fan's mean
+# azimuth (both scale with D when the fan is narrow); tilt_perp is across it.
+VERTICAL_MODELS = {
+    "full": ["height_mm", "vertical_index_mm_km", "tilt_sin_mm_km", "tilt_cos_mm_km"],
+    "merged": ["height_mm", "vertical_index_mm_km", "tilt_perp_mm_km"],
+    "height_index": ["height_mm", "vertical_index_mm_km"],
+    "height": ["height_mm"],
+}
+PARAMETERS = HORIZONTAL + [
     "height_mm",
     "vertical_index_mm_km",
     "tilt_sin_mm_km",
     "tilt_cos_mm_km",
+    "tilt_perp_mm_km",
 ]
 
 
@@ -38,24 +45,67 @@ def huber_fit(design, observed, sigma, tuning):
     return beta, np.sqrt(np.diag(covariance)), residual, weight
 
 
-def design_matrix(g):
+def vertical_columns(g, model="full", axis_az_deg=0.0):
+    az = np.radians(g.baseline_az_deg.to_numpy())
+    km = g.baseline_d_m.to_numpy() / 1000
+    columns = {
+        "height_mm": np.ones(len(g)),
+        "vertical_index_mm_km": km,
+        "tilt_sin_mm_km": km * np.sin(az),
+        "tilt_cos_mm_km": km * np.cos(az),
+        "tilt_perp_mm_km": km * np.sin(az - np.radians(axis_az_deg)),
+    }
+    return np.column_stack([columns[name] for name in VERTICAL_MODELS[model]])
+
+
+def design_matrix(g, model="full", axis_az_deg=0.0):
     az = np.radians(g.baseline_az_deg.to_numpy())
     v = np.radians(g.baseline_v_deg.to_numpy())
     hd = g.baseline_hd_m.to_numpy()
     km = g.baseline_d_m.to_numpy() / 1000
     n = len(g)
-    x = np.zeros((3 * n, 8))
+    vertical = vertical_columns(g, model, axis_az_deg)
+    x = np.zeros((3 * n, 4 + vertical.shape[1]))
     x[:n, 0] = 1
     x[:n, 1] = -206.265 * np.cos(az) / hd
     x[:n, 2] = 206.265 * np.sin(az) / hd
     x[n : 2 * n, 1] = -np.sin(az) * np.sin(v)
     x[n : 2 * n, 2] = -np.cos(az) * np.sin(v)
     x[n : 2 * n, 3] = km
-    x[2 * n :, 4] = 1
-    x[2 * n :, 5] = km
-    x[2 * n :, 6] = km * np.sin(az)
-    x[2 * n :, 7] = km * np.cos(az)
+    x[2 * n :, 4:] = vertical
     return x
+
+
+def select_vertical_model(station_series, members, sigma_v, axis_az_deg):
+    """Richest vertical model whose correction is no less precise than one raw vertical.
+
+    For each model and cycle, the a-priori SE of the correction at every target follows
+    from the frame members' geometry and the supplied sigma_v alone (no data, no new
+    constant). A model is admissible if each target's median SE over cycles is <= sigma_v.
+    """
+    diagnostics = []
+    if not station_series.pid.isin(members).any():
+        # No frame geometry: nothing to select; fits report insufficient geometry.
+        return "full", [(model, np.nan, "", 0) for model in VERTICAL_MODELS]
+    for model in VERTICAL_MODELS:
+        per_target = []
+        for _, g in station_series.groupby("cycle"):
+            f = g[g.pid.isin(members)]
+            x = vertical_columns(f, model, axis_az_deg)
+            if len(f) <= x.shape[1] or np.linalg.matrix_rank(x) < x.shape[1]:
+                continue
+            covariance = sigma_v**2 * np.linalg.inv(x.T @ x)
+            xg = vertical_columns(g, model, axis_az_deg)
+            se = np.sqrt(np.maximum(0, np.einsum("ij,jk,ik->i", xg, covariance, xg)))
+            per_target.append(pd.Series(se, index=g.pid.to_numpy()))
+        if not per_target:
+            diagnostics.append((model, np.nan, "", 0))
+            continue
+        worst = pd.concat(per_target).groupby(level=0).median()
+        diagnostics.append((model, float(worst.max()), str(worst.idxmax()), int((worst > sigma_v).sum())))
+    admissible = [d for d in diagnostics if np.isfinite(d[1]) and d[3] == 0]
+    chosen = admissible[0][0] if admissible else "full"
+    return chosen, diagnostics
 
 
 def fit_frames(series, summary, config):
@@ -113,6 +163,22 @@ def fit_frames(series, summary, config):
             )
         s.loc[station_series.index, "frame_member"] = station_series.pid.isin(eligible)
         baseline_coords = station_series[["st_e", "st_n", "st_h"]].iloc[0]
+        members = station_series[station_series.pid.isin(eligible)]
+        # Circular mean azimuth of the frame members: the fan axis used by the merged model.
+        axis_az = (
+            float(np.degrees(np.angle(np.exp(1j * np.radians(members.baseline_az_deg)).mean())) % 360)
+            if len(members)
+            else 0.0
+        )
+        configured = rules["vertical_model"]
+        configured = configured.get(station, "auto") if isinstance(configured, dict) else configured
+        chosen, diagnostics = select_vertical_model(station_series, eligible, rules["sigma_v_mm"], axis_az)
+        if configured == "auto":
+            vertical = chosen
+            selection = "automatic: richest model with a-priori correction SE <= sigma_v at every target"
+        else:
+            vertical, selection = configured, "configured"
+        full = diagnostics[0]
         for cycle, g in station_series.groupby("cycle"):
             f = g[g.pid.isin(eligible)]
             row = {
@@ -123,6 +189,11 @@ def fit_frames(series, summary, config):
                 "experimental": True,
                 "frame_policy": "explicit" if explicit else "automatic provisional",
                 "condition_number": np.nan,
+                "vertical_model": vertical,
+                "vertical_model_selection": selection,
+                "vertical_axis_az_deg": axis_az,
+                "full_vertical_worst_target_se_mm": full[1],
+                "full_vertical_targets_over_sigma_v": full[3],
             }
             for field in PARAMETERS:
                 row[field] = np.nan
@@ -135,20 +206,21 @@ def fit_frames(series, summary, config):
                     raise ValueError(
                         "Insufficient geometry or rank-deficient frame (four vertical parameters)"
                     )
-                design = design_matrix(f)
+                design = design_matrix(f, vertical, axis_az)
+                names = HORIZONTAL + VERTICAL_MODELS[vertical]
                 observation = np.concatenate([f.dhz_arcsec, f.los_raw, f.ver_raw])
                 sigma = np.repeat(
                     [rules["sigma_hz_arcsec"], rules["sigma_d_mm"], rules["sigma_v_mm"]], len(f)
                 )
                 beta, se, residual, weights = huber_fit(design, observation, sigma, rules["huber_tuning"])
-                row.update(zip(PARAMETERS, beta))
-                row.update(zip([p + "_se" for p in PARAMETERS], se))
+                row.update(zip(names, beta))
+                row.update(zip([p + "_se" for p in names], se))
                 row.update(
                     status="fit",
                     condition_number=float(np.linalg.cond(design / sigma[:, None])),
                     rms_normalized=float(np.sqrt(np.mean(residual**2))),
                 )
-                x = design_matrix(g)
+                x = design_matrix(g, vertical, axis_az)
                 prediction = x @ beta
                 n = len(g)
                 s.loc[g.index, "tan_fc"] = (
@@ -160,7 +232,7 @@ def fit_frames(series, summary, config):
                 # Exact covariance is reconstructed from the final IRLS weights.
                 fit_x = design / sigma[:, None]
                 cov = np.linalg.pinv(fit_x.T @ (weights[:, None] * fit_x))
-                cov *= max(1, float(np.sum(weights * residual**2) / (len(residual) - 8)))
+                cov *= max(1, float(np.sum(weights * residual**2) / (len(residual) - design.shape[1])))
                 uncertainty = np.sqrt(np.maximum(0, np.einsum("ij,jk,ik->i", x, cov, x)))
                 s.loc[g.index, "tan_frame_se_mm"] = uncertainty[:n] * g.hd.to_numpy() * np.pi / 648000 * 1000
                 s.loc[g.index, "los_frame_se_mm"] = uncertainty[n : 2 * n]

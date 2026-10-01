@@ -338,3 +338,33 @@ def test_insufficient_data_count(result, golden):
 def test_final_class_counts(result, golden):
     counts = result["prism_summary"].final_class.value_counts().to_dict()
     assert counts == golden["final_class_counts"]
+
+
+def test_station_w_vertical_frame_is_identifiable(result, summary, stations):
+    """Regression for the narrow-fan W station (not a golden value).
+
+    The handoff's four-term vertical model cannot separate index from along-fan tilt
+    across W's 22-degree fan, and its correction at targets outside the fan was
+    ill-determined (up to 60 mm). E keeps the full model.
+    """
+    frames = result["frame_cycles"].groupby("station").first()
+    assert frames.loc[stations["E"], "vertical_model"] == "full"
+    assert frames.loc[stations["W"], "vertical_model"] != "full"
+    assert frames.loc[stations["W"], "full_vertical_targets_over_sigma_v"] > 0
+    # The chosen model is the richest whose a-priori correction SE is within sigma_v at
+    # every W target (fitted SEs add Huber weighting and variance inflation on top).
+    from rts_forensics.frame import select_vertical_model
+
+    members = result["frame_members"]
+    members = set(members[(members.station == stations["W"]) & members.included].pid)
+    series = result["series"][result["series"].station == stations["W"]]
+    chosen, diagnostics = select_vertical_model(
+        series,
+        members,
+        result["config"]["frame"]["sigma_v_mm"],
+        frames.loc[stations["W"], "vertical_axis_az_deg"],
+    )
+    assert chosen == frames.loc[stations["W"], "vertical_model"]
+    assert dict((d[0], d[3]) for d in diagnostics)[chosen] == 0
+    # HLO-R7's raw subsidence is no longer absorbed by the frame.
+    assert summary.loc["HLO-R7", "net_vertical_fc_mm"] < summary.loc["HLO-R7", "net_vertical_raw_mm"] / 2

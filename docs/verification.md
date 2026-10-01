@@ -1,6 +1,6 @@
 # Verification and implementation decisions
 
-Assessment, 1 October 2026 (after the golden fixture was added): **133 passed,
+Assessment, 1 October 2026 (after the golden fixture was added): **139 passed,
 6 skipped, 2 xfailed** with numeric runtime warnings treated as errors. Ruff
 lint and format, strict documentation build, wheel/sdist build (no field data
 or golden JSON in the sdist) and the CLI on the HLO export passed.
@@ -66,11 +66,20 @@ it, as documented (handoff pitfall 4); the golden value includes it.
 - Targets spanning less than the baseline plus end windows reported a net
   change of exactly 0 mm, from the same observations (e.g. HLO-R8). That net
   change is now unavailable and flagged.
-- At station W all targets lie in a 46° azimuth fan, and the four-parameter
-  vertical frame is ill-conditioned (fitted height SE ~26 mm against ~3 mm raw
-  noise; frame-corrected AE verticals up to 60 mm). Targets whose fit SE
-  exceeds their raw noise are now flagged and a run warning is issued; values
-  are kept.
+- At station W all targets lie in a 46° azimuth fan, and the frame members
+  span only 22°. Index and along-fan tilt are then inseparable (VIF ~3,000):
+  fitted station height ranged -49 to +116 mm (SE ~26 mm) and AE targets
+  outside the fan got corrections up to 60 mm, while HLO-R7's subsidence was
+  absorbed (corrected net +0.15 mm against raw -12.7 mm). The vertical model is
+  now chosen per station so that no target's correction is less precise than a
+  raw observation (see method). W uses `height_index` (full model: 11 targets
+  above sigma, worst 18.8 mm); E keeps the full handoff model and every E
+  output is bit-identical. At W, AE corrected verticals are now -14 to +2 mm
+  with fit SE 2.3-3.0 mm, and HLO-R7's corrected net is -17.3 mm: the frame's
+  common mode at HLO-R7 is +4.6 mm by the end, consistent with the handoff's
+  "+4.5 mm at end, false uplift on W prisms". No screening label changes.
+  Eight AE targets keep the "vertical less precise" flag because their own
+  raw noise (0.7-1.6 mm) is below any achievable correction SE there.
 - The pipeline took about 6 minutes on the HLO export, mostly pandas overhead
   in 24-hour blocking. It now takes about 80 s with bit-identical outputs.
 - For 46 of 208 targets the robust LOS σ was 0.0 mm, because the MAD of
@@ -83,9 +92,6 @@ it, as documented (handoff pitfall 4); the golden value includes it.
 
 ## Open decisions for the owner
 
-- **Station W vertical frame.** A reduced vertical model (height and index
-  only) or explicit W frame membership would avoid the ill-conditioning; the
-  research script's W model is unknown.
 - **Bias floor.** Without `detection.bias_floor_mm`, 181 of 208 targets carry
   a "day/night bias candidate" flag. The golden SP set suggests a floor of a
   few millimetres.
