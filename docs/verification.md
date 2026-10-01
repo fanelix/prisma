@@ -1,6 +1,6 @@
 # Verification and implementation decisions
 
-Assessment, 1 October 2026 (after the golden fixture was added): **132 passed,
+Assessment, 1 October 2026 (after the golden fixture was added): **133 passed,
 6 skipped, 2 xfailed** with numeric runtime warnings treated as errors. Ruff
 lint and format, strict documentation build, wheel/sdist build (no field data
 or golden JSON in the sdist) and the CLI on the HLO export passed.
@@ -73,14 +73,16 @@ it, as documented (handoff pitfall 4); the golden value includes it.
   are kept.
 - The pipeline took about 6 minutes on the HLO export, mostly pandas overhead
   in 24-hour blocking. It now takes about 80 s with bit-identical outputs.
+- For 46 of 208 targets the robust LOS σ was 0.0 mm, because the MAD of
+  1 mm-quantised residuals collapses, so every nonzero residual was flagged as
+  a spike (2,821 of 33,618 prism-cycles). With the owner-approved floor of
+  resolution/√12 = 0.29 mm, 285 prism-cycles (0.85%) are spikes. Screening,
+  frames and 24-hour series are unchanged; the median σ stays 0.741 mm. With a
+  measurable LOS σ, the frame-precision flag now also marks 19 station W
+  targets whose LOS fit SE exceeds raw noise.
 
 ## Open decisions for the owner
 
-- **Range-noise floor.** For 46 of 208 targets the robust LOS σ is 0.0 mm,
-  because the MAD of 1 mm-quantised residuals collapses. Spike flags then mark
-  every nonzero residual. Screening is not affected (it uses max(2 mm, 3σ)).
-  A floor such as resolution/√12 ≈ 0.29 mm is standard but changes spike and
-  noise outputs, so it is left to the owner.
 - **Station W vertical frame.** A reduced vertical model (height and index
   only) or explicit W frame membership would avoid the ill-conditioning; the
   research script's W model is unknown.

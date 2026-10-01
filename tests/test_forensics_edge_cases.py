@@ -244,3 +244,23 @@ def test_overlapping_baseline_and_end_windows_do_not_report_zero_net_change():
     row = summarize(series, noise, load_config()).iloc[0]
     assert np.isnan(row.net_los_raw_mm) and np.isnan(row.net_los_raw_hour_matched_mm)
     assert "windows overlap" in row["flags"]
+
+
+def test_quantised_los_noise_is_floored_at_resolution_over_root_twelve():
+    from rts_forensics.noise import estimate
+
+    ts = pd.date_range("2024-01-01", periods=120, freq="h")
+    los = np.zeros(120)
+    los[::10] = 1.0  # occasional 1 mm quantisation steps: MAD is 0
+    los[60] = 3.0  # a real 3 mm outlier
+    series = pd.DataFrame(
+        {"station": "S1", "pid": "P1", "ts": ts, "los_raw": los, "ver_raw": 0.0, "tan_raw": 0.0}
+    )
+    rows = pd.DataFrame(columns=["station", "pid", "cycle", "d", "hz", "v", "parse_error"])
+    rows = rows.astype({"parse_error": bool, "cycle": "Int64", "d": float, "hz": float, "v": float})
+    out, noise = estimate(series, rows, load_config())
+    assert noise.sigma_los_raw_mad.iloc[0] == 0
+    assert noise.sigma_los_raw.iloc[0] == pytest.approx(1 / np.sqrt(12))
+    assert np.flatnonzero(out.spike_los_raw).tolist() == [60]
+    coarse, _ = estimate(series, rows, load_config(overrides={"screening": {"range_resolution_mm": 2.0}}))
+    assert coarse.spike_los_raw.sum() == 0

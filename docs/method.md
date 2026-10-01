@@ -38,6 +38,11 @@ Orientation differences are reported; step events require an explicit
 `detection.orientation_step_arcsec`. No unprovided step threshold is assumed.
 
 Noise uses 1.4826 MAD of residuals from a centered 24-hour rolling median.
+LOS is quantised to the range resolution (`screening.range_resolution_mm`,
+1 mm in the handoff), so its MAD can collapse to 0; LOS σ is therefore floored
+at the uniform quantisation SD, resolution/√12 (0.29 mm). The unfloored MAD is
+kept as `sigma_los_raw_mad`. Vertical and tangential σ are not floored: the
+range quantum is scaled by cos V in vertical and does not enter tangential.
 Spikes above the supplied robust-z 6 are retained as flags. Rates use Theil–Sen
 on 24-hour block medians counted backward from the final record, using median
 observation timestamps and excluding the initial partial block. Windows are

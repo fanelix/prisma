@@ -54,8 +54,14 @@ def estimate(series, rows, config):
             rolling = g.set_index("ts")[column].rolling("24h", center=True).median().to_numpy()
             residual = g[column].to_numpy() - rolling
             sigma = mad(residual)
+            if column == "los_raw":
+                # LOS is quantised to the range resolution, so its MAD can collapse to 0 and
+                # flag every 1-step residual as a spike. Floor it at the uniform quantisation
+                # SD (resolution / sqrt 12); the unfloored MAD is kept for audit.
+                row["sigma_los_raw_mad"] = sigma
+                floor = config["screening"]["range_resolution_mm"] / np.sqrt(12)
+                sigma = max(sigma, floor) if np.isfinite(sigma) else sigma
             row["sigma_" + column] = sigma
-            # Zero MAD with a nonzero residual: retain an explicit spike flag.
             spike = np.abs(residual) > config["screening"]["spike_z"] * sigma
             series.loc[g.index, "spike_" + column] = spike
         repeat = squares.loc[(station, pid)] if (station, pid) in squares.index else None

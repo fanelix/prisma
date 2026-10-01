@@ -100,6 +100,7 @@ def summarize(series, noise, config):
             "last_observation": g.ts.max(),
             "spike_fraction": float(g.spike_los_raw.mean()),
             "sigma_los_mm": ns.sigma_los_raw,
+            "sigma_los_mad_mm": ns.get("sigma_los_raw_mad", np.nan),
             "sigma_vertical_mm": ns.sigma_ver_raw,
             "reliability": "ungraded (site policy not supplied)",
             "tarp_status": tarp_status(g, config),
