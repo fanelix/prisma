@@ -7,9 +7,4 @@ site/
 data_uji_3bulan.csv
 keluaran_*/
 results/
-.reference/
-reference_code/*.py
-reference_code/*.json
-reference_code/*.zip
-tests/fixtures/private/
 *.egg-info/

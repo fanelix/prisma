@@ -88,6 +88,8 @@ rts-forensics/
 
 `rts_forensics.tests` contains analytical tests of hypotheses; the root `tests/` contains pytest software tests. The two namespaces are deliberately distinct. Supplied research scripts may be retained after inspection for private data or embedded confidential information; production modules will not execute them or load their pickles. Raw exports, private fixtures, generated site results, credentials and unreviewed source bundles are excluded from version control. A project license must be chosen explicitly before public publication.
 
+> Implementation note: the site confirmed that the supplied export uses a shifted dummy grid (the data owner restores the real grid separately), so `golden_values.json` and the handoff document are included in this repository. The research scripts are still expected to be dropped into `reference_code/` locally; production modules never import them.
+
 ## Shared data contracts
 
 All tables use stable identifiers and explicit units. Distances used for geometry are metres; displacements and translations are millimetres; angles used internally are radians; exported rotation is arcseconds; rates are mm/day. Scale in ppm is recorded explicitly. Every table declares its grain, units and key columns in a generated dictionary.

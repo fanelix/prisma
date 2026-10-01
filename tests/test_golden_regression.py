@@ -1,12 +1,13 @@
 """
 Real-data regression against golden_values.json.
 
-Skipped unless BOTH the private monthly export and the machine-readable golden
-fixture are available locally. Private inputs are never committed; place them
-under tests/fixtures/private/ or point the environment at them:
+The machine-readable fixture is committed at ``tests/fixtures/golden_values.json``
+(the site confirmed the export uses a shifted dummy grid, and the owner restores
+the real grid separately). Skipped unless the monthly export itself is available;
+place it at ``tests/fixtures/HLO_Sept_2026.csv`` or point the environment at it:
 
     RTS_HLO_CSV=/path/HLO_Sept_2026.csv
-    RTS_GOLDEN_VALUES=/path/golden_values.json
+    RTS_GOLDEN_VALUES=/path/golden_values.json   # optional override
 
 Validation uses the explicit fixture definitions and tolerances below. The
 rounded handoff table is never substituted for the machine-readable fixture.
@@ -25,13 +26,12 @@ from rts_forensics.config import load_config
 from rts_forensics.pipeline import run_analysis
 
 REPO = Path(__file__).resolve().parents[1]
-PRIVATE = REPO / "tests" / "fixtures" / "private"
+FIXTURES = REPO / "tests" / "fixtures"
 
 
 def _golden_path() -> Path | None:
     candidates = [os.environ.get("RTS_GOLDEN_VALUES"),
-                  PRIVATE / "golden_values.json",
-                  REPO / ".reference" / "golden_values.json"]
+                  FIXTURES / "golden_values.json"]
     for candidate in candidates:
         if candidate and Path(candidate).is_file():
             return Path(candidate)
@@ -40,7 +40,8 @@ def _golden_path() -> Path | None:
 
 def _csv_path() -> Path | None:
     candidates = [os.environ.get("RTS_HLO_CSV"),
-                  PRIVATE / "HLO_Sept_2026.csv"]
+                  FIXTURES / "HLO_Sept_2026.csv",
+                  REPO / "HLO_Sept_2026.csv"]
     for candidate in candidates:
         if candidate and Path(candidate).is_file():
             return Path(candidate)
@@ -49,7 +50,8 @@ def _csv_path() -> Path | None:
 
 pytestmark = pytest.mark.skipif(
     _golden_path() is None or _csv_path() is None,
-    reason="private export and golden_values.json are not configured")
+    reason="monthly export is not present; drop it at tests/fixtures/ or set "
+           "RTS_HLO_CSV")
 
 
 @pytest.fixture(scope="module")
