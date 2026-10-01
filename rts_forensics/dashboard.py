@@ -198,6 +198,12 @@ def render(list_repo=None, fetch_repo=None):
     elif page == "Station frame":
         station = st.selectbox("Station", list(summary.station.unique()))
         f = result["frame_cycles"].query("station == @station").set_index("ts")
+        if "vertical_model" in f and len(f):
+            st.caption(
+                f"Vertical frame model: {f.vertical_model.iloc[0]} ({f.vertical_model_selection.iloc[0]}). "
+                f"Full model: {int(f.full_vertical_targets_over_sigma_v.iloc[0])} target(s) with a-priori "
+                f"correction SE above sigma_v."
+            )
         for columns in [
             ["rotation_arcsec"],
             ["translation_e_mm", "translation_n_mm", "scale_ppm"],

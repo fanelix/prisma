@@ -264,3 +264,46 @@ def test_quantised_los_noise_is_floored_at_resolution_over_root_twelve():
     assert np.flatnonzero(out.spike_los_raw).tolist() == [60]
     coarse, _ = estimate(series, rows, load_config(overrides={"screening": {"range_resolution_mm": 2.0}}))
     assert coarse.spike_los_raw.sum() == 0
+
+
+def _fan(azimuths, distances_m, cycles=6):
+    rows = [
+        {"pid": f"T{i}", "cycle": c, "baseline_az_deg": a, "baseline_d_m": d}
+        for c in range(cycles)
+        for i, (a, d) in enumerate(zip(azimuths, distances_m))
+    ]
+    return pd.DataFrame(rows)
+
+
+def test_vertical_model_keeps_full_model_for_wide_geometry():
+    from rts_forensics.frame import select_vertical_model
+
+    fan = _fan(np.arange(0, 360, 30), [400 + 80 * i for i in range(12)])
+    chosen, diagnostics = select_vertical_model(fan, set(fan.pid), 3.0, 0.0)
+    assert chosen == "full"
+    assert diagnostics[0][3] == 0
+
+
+def test_vertical_model_drops_terms_a_narrow_fan_cannot_separate():
+    from rts_forensics.frame import select_vertical_model
+
+    # Station W of the HLO export: six members across 22 degrees, plus closer
+    # targets outside that fan whose corrections the full model must extrapolate.
+    members = _fan([151, 153, 158, 165, 169, 173], [790, 850, 1250, 1330, 1415, 1470])
+    others = _fan([180, 186, 192], [690, 665, 650])
+    others["pid"] = "X" + others.pid
+    fan = pd.concat([members, others])
+    chosen, diagnostics = select_vertical_model(fan, set(members.pid), 3.0, 162.0)
+    by_model = {d[0]: d for d in diagnostics}
+    assert by_model["full"][3] > 0  # full model: some correction SE above sigma_v
+    assert chosen != "full"
+    assert by_model[chosen][3] == 0 and by_model[chosen][1] <= 3.0
+
+
+def test_vertical_model_configuration_is_validated():
+    with pytest.raises(ValueError, match="vertical_model"):
+        load_config(overrides={"frame": {"vertical_model": "quadratic"}})
+    with pytest.raises(ValueError, match="vertical_model"):
+        load_config(overrides={"frame": {"vertical_model": {"S1": "tilt"}}})
+    cfg = load_config(overrides={"frame": {"vertical_model": {"S1": "height"}}})
+    assert cfg["frame"]["vertical_model"] == {"S1": "height"}

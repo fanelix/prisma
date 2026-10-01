@@ -66,6 +66,24 @@ Report parameter SEs, geometry condition, RMS, membership and exclusions.
 Nominal fit uncertainty excludes model bias, external-control uncertainty and
 unmodelled atmosphere. Ill-conditioned fits require manual review.
 
+The vertical model is chosen per station from a ladder, richest first:
+`full` (height, index, tilt sin/cos: the handoff model), `merged` (height,
+index plus the tilt along the members' mean azimuth, tilt across it),
+`height_index`, and `height`. Across a narrow fan the index and the along-fan
+tilt both scale with distance and cannot be separated, and corrections for
+targets outside the fan are extrapolated. The automatic rule
+(`frame.vertical_model: auto`) uses the richest model for which every target's
+a-priori correction SE, from the members' geometry and the supplied 3 mm
+vertical sigma alone, has a median over cycles no greater than that sigma.
+In words: no target gets a correction less precise than one raw vertical
+observation. No new constant is introduced, and the choice depends on
+geometry, not on the fitted values. A model name, or a `{station: model}`
+mapping, overrides the rule. `frame_cycles.csv` records the model, how it was
+chosen, the fan axis and the full model's worst target SE. With a reduced
+model, `height_mm` is the intercept at the instrument; it can stay poorly
+determined (HLO W: SE ~6 mm) while target corrections are within sigma, so
+resection validation against exported height is weak at such a station.
+
 Frame values are experimental. They may remove common ground movement;
 raw/FC must be examined together. Reference names do not establish stability.
 Explicit `frame.include`, `frame.exclude` and `frame.references_under_test`

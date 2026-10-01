@@ -33,6 +33,8 @@ DEFAULTS = {
         "sigma_d_mm": 0.8,
         "sigma_v_mm": 3.0,
         "huber_tuning": 1.345,
+        # "auto", a model name, or {station: model}; see frame.VERTICAL_MODELS.
+        "vertical_model": "auto",
     },
     "reliability": None,
     "detection": {"orientation_step_arcsec": None, "bias_floor_mm": None, "cluster_radius_m": None},
@@ -85,6 +87,16 @@ def load_config(path=None, overrides=None):
                 or value <= 0
             ):
                 raise ValueError(f"{block}.{key} must be positive and finite")
+    models = {"auto", "full", "merged", "height_index", "height"}
+    vertical = cfg["frame"]["vertical_model"]
+    if not (
+        (isinstance(vertical, str) and vertical in models)
+        or (
+            isinstance(vertical, dict)
+            and all(isinstance(k, str) and isinstance(v, str) and v in models for k, v in vertical.items())
+        )
+    ):
+        raise ValueError(f"frame.vertical_model must be one of {sorted(models)} or a station mapping")
     for key in ["include", "exclude", "references_under_test"]:
         if not isinstance(cfg["frame"][key], list) or any(not isinstance(v, str) for v in cfg["frame"][key]):
             raise ValueError(f"frame.{key} must be a list of target IDs")

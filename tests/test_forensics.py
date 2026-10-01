@@ -298,3 +298,31 @@ def test_pooled_repeatability_is_reported(result):
     # Synthetic repeats: distance noise 0.04 mm and Hz noise 0.02 arcsec per repeat.
     assert table.loc["all", "repeat_sd_d_mm"] == pytest.approx(0.04, rel=0.15)
     assert table.loc["all", "repeat_sd_hz_arcsec"] == pytest.approx(0.02, rel=0.25)
+
+
+def test_automatic_vertical_model_is_richest_admissible(result):
+    """Synthetic P-23 lies beyond the members' range, so the full model is not admissible."""
+    from rts_forensics.frame import select_vertical_model
+
+    frames = result["frame_cycles"]
+    axis = frames.vertical_axis_az_deg.iloc[0]
+    chosen, diagnostics = select_vertical_model(
+        result["series"], set(config()["frame"]["include"]), 3.0, axis
+    )
+    by_model = {d[0]: d for d in diagnostics}
+    assert by_model["full"][2] == "P-23" and by_model["full"][3] == 1
+    assert frames.vertical_model.eq(chosen).all() and chosen != "full"
+    assert frames.vertical_model_selection.str.startswith("automatic").all()
+
+
+def test_configured_vertical_model_overrides_selection():
+    from rts_forensics.pipeline import run
+
+    cfg = config()
+    cfg["frame"]["vertical_model"] = {"S1": "height"}
+    frames = run(("synthetic.csv", synthetic()), cfg)["frame_cycles"]
+    fitted = frames[frames.status == "fit"]
+    assert fitted.vertical_model.eq("height").all()
+    assert fitted.vertical_model_selection.eq("configured").all()
+    assert fitted.height_mm.notna().all()
+    assert fitted[["vertical_index_mm_km", "tilt_sin_mm_km", "tilt_cos_mm_km"]].isna().all().all()
