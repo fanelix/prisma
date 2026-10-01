@@ -21,6 +21,8 @@ DEFAULTS = {
         "los_floor_mm": 2.0,
         "vertical_floor_mm": 5.0,
         "spike_z": 6.0,
+        # Handoff: slope distance is exported at 1 mm resolution.
+        "range_resolution_mm": 1.0,
     },
     "frame": {
         "include": [],

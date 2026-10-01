@@ -2,6 +2,9 @@
 baseline_hours: 48
 end_hours: 48
 cycle_gap_minutes: 30
+# Slope distance is exported at 1 mm; LOS noise is floored at resolution / sqrt(12).
+screening:
+  range_resolution_mm: 1.0
 # Station IDs are ordered west to east by overlapping station easting ranges.
 # HLO export: S1 = W (15 minutes); S2 = E (30 minutes).
 station_gap_minutes:

@@ -38,6 +38,11 @@ Orientation differences are reported; step events require an explicit
 `detection.orientation_step_arcsec`. No unprovided step threshold is assumed.
 
 Noise uses 1.4826 MAD of residuals from a centered 24-hour rolling median.
+LOS is quantised to the range resolution (`screening.range_resolution_mm`,
+1 mm in the handoff), so its MAD can collapse to 0; LOS σ is therefore floored
+at the uniform quantisation SD, resolution/√12 (0.29 mm). The unfloored MAD is
+kept as `sigma_los_raw_mad`. Vertical and tangential σ are not floored: the
+range quantum is scaled by cos V in vertical and does not enter tangential.
 Spikes above the supplied robust-z 6 are retained as flags. Rates use Theil–Sen
 on 24-hour block medians counted backward from the final record, using median
 observation timestamps and excluding the initial partial block. Windows are
@@ -68,8 +73,11 @@ control membership. Automatic selection requires the supplied 100 cycles,
 excludes raw detected movers and, when a physical bias floor is supplied,
 statistically persistent day/night candidates above that floor,
 and excludes detected raw vertical movement, using grade A **only if an owner-defined grading policy exists**. With no
-policy it is explicitly provisional. The algorithm cannot promise the
-research frame set or golden values without that independent bundle.
+policy it is explicitly provisional, so the frame set differs from the
+research frame set; frame-corrected golden values agree within 0.3 mm.
+A target whose median frame fit SE exceeds its raw noise is flagged: at a
+station whose targets span a narrow azimuth range (HLO station W) the vertical
+frame is ill-conditioned and `ver_fc` is less precise than `ver_raw`.
 
 ## Decisions that require site input
 
@@ -124,9 +132,23 @@ to atmosphere and sampling. Group-median composition changes must be reviewed.
 
 ## Golden regression
 
-Set `RTS_GOLDEN_DATA` and `RTS_GOLDEN_VALUES` to local files. The independent
-JSON contract is `checks`, a list of `{table, where, column, expected,
-tolerance}`. `where` maps key columns to exact values; each check must match
-one row. Tolerances must be supplied by the owner and are never inferred.
-Do not convert narrative handoff values into fake executable golden results.
-The regression is skipped with a clear reason if either file is absent.
+`tests/test_golden_hlo.py` runs the pipeline on `data/HLO Sept 2026.csv` with
+`config.yaml` and compares it with `tests/fixtures/golden_values.json`, the
+owner's file committed byte for byte. The test is skipped with a reason if
+either file is absent or the export's MD5 differs from `input.md5`. Set
+`RTS_GOLDEN_DATA` and `RTS_GOLDEN_VALUES` to check another copy.
+
+The golden file holds values only. Tolerances sit in one `TOLERANCES` table in
+the test, each with its reason (golden rounding, 1 mm range quantisation,
+provisional frame set). They are regression tolerances for owner review, not
+site, movement or alarm thresholds. Quantities without a single pipeline
+output (period rates, placebo groups, the 7 Sep step) are derived in the test
+from pipeline tables, and each derivation is stated there. Golden values the
+implementation does not reproduce are `xfail(strict=True)` with the reason, so
+that a later fix fails the test until the marker is removed.
+
+Reference inference follows the handoff's cycle-detrended definition: each
+target's raw vertical (or Hz) minus the leave-one-out cycle median of the
+station's other targets, correlated with exported station height (or
+orientation). A time-differenced variant is kept as a robustness check; it
+cannot detect slow co-variation such as subsidence.

@@ -244,7 +244,9 @@ streamlit run app/app.py
 See [method/configuration](docs/method.md) and [implementation APIs](docs/forensics-plan.md).
 No TARP or A–D reliability thresholds are assumed. Automatic frame selection
 is provisional until a grading policy or explicit frame set is supplied.
-The independent research scripts and HLO golden JSON were not supplied, so
-synthetic recovery is verified separately from optional local regression.
+The handoff's golden values (`tests/fixtures/golden_values.json`) are checked
+against the tracked HLO export by `tests/test_golden_hlo.py`; see
+[verification](docs/verification.md) for what is and is not reproduced. The
+research scripts (`reference_code/`) were not supplied.
 
 ---

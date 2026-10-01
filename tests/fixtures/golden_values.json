@@ -1,0 +1,127 @@
+{
+  "input": {
+    "file": "HLO_Sept_2026.csv",
+    "md5": "99b7183def3b852197edd0eca31b1daf",
+    "rows": 39822,
+    "prisms": 208,
+    "stations": {
+      "E": {
+        "prisms": 188,
+        "cycles": 178
+      },
+      "W": {
+        "prisms": 20,
+        "cycles": 462
+      }
+    },
+    "period": [
+      "2026-09-01 07:05",
+      "2026-10-01 06:37"
+    ]
+  },
+  "repeatability": {
+    "D_mm": 0.3,
+    "Hz_arcsec": 0.75,
+    "V_arcsec": 0.79,
+    "cycle_sigma_los_mm_median": 0.74,
+    "cycle_sigma_vert_mm_median": 2.8
+  },
+  "station_E": {
+    "rotation_step_7Sep_arcsec": -4.41,
+    "rotation_end_arcsec": -12.84,
+    "drift_7_21Sep_arcsec_per_day": -0.07,
+    "drift_after_21Sep_arcsec_per_day": -0.67,
+    "processing_change": "2026-09-21 20:03",
+    "E158_station_height_m": 61.602,
+    "S2_applied_minus_fitted_orientation_mean_arcsec": -2.07,
+    "network_median_asdelivered_3D_end_S1_mm": 26.0,
+    "BS_HL_5_S1_median_dE_mm": 48.5
+  },
+  "G1": {
+    "prisms": [
+      "HLO-279",
+      "HLO-128",
+      "HLO-189",
+      "HLO-289",
+      "HLO-320",
+      "HLO-123",
+      "HLO-231"
+    ],
+    "net_los_frame_corrected_mm": {
+      "HLO-279": -2.78,
+      "HLO-128": -3.07,
+      "HLO-189": -3.76,
+      "HLO-289": -5.23,
+      "HLO-320": -5.9,
+      "HLO-123": -2.08,
+      "HLO-231": -3.16
+    },
+    "net_los_raw_mm": {
+      "HLO-279": -3.0,
+      "HLO-128": -4.0,
+      "HLO-189": -4.0,
+      "HLO-289": -5.0,
+      "HLO-320": -6.5,
+      "HLO-123": -3.0,
+      "HLO-231": -4.0
+    },
+    "period_rates_mm_per_day": {
+      "01-07 Sep": -0.158,
+      "07-14 Sep": -0.109,
+      "14-21 Sep": -0.106,
+      "21 Sep-01 Oct": -0.05
+    },
+    "placebo_null_min_mm": -0.61,
+    "group_median_mm": -3.16
+  },
+  "HLO_R7": {
+    "net_vert_raw_mm": -12.68,
+    "net_los_mm": 4.0,
+    "vert_trend_mm_per_30d": -14.89,
+    "rho_with_W_station_height": -0.317
+  },
+  "final_class_counts": {
+    "No credible movement detected within available observations and sensitivity": 167,
+    "No credible movement; daytime range artefact": 10,
+    "Insufficient data": 9,
+    "Credible movement (G1 cluster)": 7,
+    "Unresolved": 5,
+    "Ambiguous (vertical only)": 4,
+    "No credible movement; Stage 1 flag explained by sampling": 2,
+    "Reference point (see measurement findings)": 2,
+    "Credible movement (local subsidence)": 1,
+    "Possible movement (edge of G1)": 1
+  },
+  "tangential_only_candidates": [
+    "DAM5_3",
+    "HLO-112",
+    "HLO-274",
+    "STG4N-10"
+  ],
+  "sp_daytime_bias_prisms": [
+    "SP_44",
+    "SP_41",
+    "SP_37",
+    "SP_35",
+    "SP_21",
+    "SP_22",
+    "SP_16",
+    "SP_25",
+    "SP_81",
+    "SP_09"
+  ],
+  "lost_final_48h": [
+    "HLO-274",
+    "HLO-145",
+    "SP_06",
+    "HLO-336",
+    "HLO-319",
+    "HLO-195",
+    "HLO-310",
+    "HLO-210",
+    "HLO-317",
+    "HLO-211",
+    "HLO-R8",
+    "HLO-W-17"
+  ]
+}

@@ -12,4 +12,5 @@ site/
 *.egg-info/
 data/*.csv
 golden_values.json
+!tests/fixtures/golden_values.json
 local-regression/

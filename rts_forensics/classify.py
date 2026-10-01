@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 from .investigations import hour_matched_net, paired_bias
-from .rates import slope
+from .rates import slopes
 
 
 def group_for_pid(pid):
@@ -68,12 +68,18 @@ def tarp_status(g, config):
 
 def summarize(series, noise, config):
     records = []
+    # Narrow per-station frames once; reslicing wide series per prism dominated runtime.
+    stations = {s: f[["ts", "cycle", "night"]] for s, f in series.groupby("station")}
     for (station, pid), g in series.groupby(["station", "pid"]):
         g = g.sort_values("ts")
         ns = noise[(noise.station == station) & (noise.pid == pid)].iloc[0]
-        all_station = series[series.station == station]
+        all_station = stations[station]
         early = g[g.ts < g.ts.min() + pd.Timedelta(hours=config["baseline_hours"])]
         late = g[g.ts > g.ts.max() - pd.Timedelta(hours=config["end_hours"])]
+        # Overlapping baseline/end windows share observations, biasing net change to zero.
+        overlap = g.ts.max() - pd.Timedelta(hours=config["end_hours"]) < g.ts.min() + pd.Timedelta(
+            hours=config["baseline_hours"]
+        )
         end = all_station.ts.max()
         row = {
             "station": station,
@@ -94,6 +100,7 @@ def summarize(series, noise, config):
             "last_observation": g.ts.max(),
             "spike_fraction": float(g.spike_los_raw.mean()),
             "sigma_los_mm": ns.sigma_los_raw,
+            "sigma_los_mad_mm": ns.get("sigma_los_raw_mad", np.nan),
             "sigma_vertical_mm": ns.sigma_ver_raw,
             "reliability": "ungraded (site policy not supplied)",
             "tarp_status": tarp_status(g, config),
@@ -103,27 +110,28 @@ def summarize(series, noise, config):
         row["night_success"] = g[g.night].cycle.nunique() / night_cycles if night_cycles else np.nan
         bias, low, high, _ = paired_bias(g)
         row.update(daytime_bias_mm=bias, daytime_bias_low_mm=low, daytime_bias_high_mm=high)
-        for prefix, column in [
+        products = [
             ("los_raw", "los_raw"),
             ("vertical_raw", "ver_raw"),
             ("los_fc", "los_fc"),
             ("vertical_fc", "ver_fc"),
             ("tangential_fc", "tan_fc"),
-        ]:
+        ]
+        present = [column for _, column in products if column in g]
+        windows = {days: slopes(g, present, days) for days in [30, 7, 3]}
+        for prefix, column in products:
             row["net_" + prefix + "_mm"] = (
                 late[column].median() - early[column].median()
-                if column in g and late[column].notna().any() and early[column].notna().any()
+                if column in g and not overlap and late[column].notna().any() and early[column].notna().any()
                 else np.nan
             )
             row["net_" + prefix + "_hour_matched_mm"] = (
                 hour_matched_net(g, column, config["end_hours"], config["baseline_hours"])
-                if column in g
+                if column in g and not overlap
                 else np.nan
             )
             for days, label in [(30, "30d"), (7, "7d"), (3, "72h")]:
-                rate = (
-                    slope(g, column, days) if column in g else {"rate": np.nan, "low": np.nan, "high": np.nan}
-                )
+                rate = windows[days].get(column, {"rate": np.nan, "low": np.nan, "high": np.nan})
                 for stat in ["rate", "low", "high"]:
                     row[prefix + "_" + label + "_" + stat] = rate[stat]
         raw_rate = {k: row["los_raw_30d_" + k] for k in ["rate", "low", "high"]}
@@ -150,7 +158,21 @@ def summarize(series, noise, config):
             row["movement_concern"] = "detected vertical (exploratory; independent verification required)"
             row["concern_basis"] = "ver_raw; atmospheric and station-frame checks required"
         row["final_class"] = row["movement_concern"]
+        for name, column in [("los_fit_se_mm", "los_frame_se_mm"), ("vertical_fit_se_mm", "ver_frame_se_mm")]:
+            row[name] = g[column].median() if column in g and g[column].notna().any() else np.nan
         flags = []
+        if overlap:
+            flags.append("baseline and end windows overlap; net change unavailable")
+        # Compares two estimates from the same data; no external threshold is introduced.
+        # A zero raw sigma (quantised MAD) is not a measured noise level, so it is not compared.
+        for label, se, sigma in [
+            ("LOS", row["los_fit_se_mm"], row["sigma_los_mm"]),
+            ("vertical", row["vertical_fit_se_mm"], row["sigma_vertical_mm"]),
+        ]:
+            if np.isfinite(se) and np.isfinite(sigma) and sigma > 0 and se > sigma:
+                flags.append(
+                    f"frame-corrected {label} less precise than raw (median fit SE exceeds raw noise)"
+                )
         if row["lost_final_48h"]:
             flags.append("no observations in final 48h; no stability inference")
         if row["spike_fraction"] > 0:
@@ -184,11 +206,6 @@ def summarize(series, noise, config):
         row["vector_e_mm"] = radial * np.sin(az) + row["net_tangential_fc_mm"] * np.cos(az)
         row["vector_n_mm"] = radial * np.cos(az) - row["net_tangential_fc_mm"] * np.sin(az)
         row["vector_z_mm"] = row["net_vertical_fc_mm"]
-        row["los_fit_se_mm"] = (
-            g.los_frame_se_mm.median()
-            if "los_frame_se_mm" in g and g.los_frame_se_mm.notna().any()
-            else np.nan
-        )
         row["source_refs"] = ";".join(g.source_refs)
         records.append(row)
     return pd.DataFrame(records)

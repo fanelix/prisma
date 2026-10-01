@@ -269,3 +269,32 @@ def test_all_dashboard_pages_render_verified_result(result):
                 checkbox.set_value(True)
             app.run(timeout=30)
             assert not app.exception
+
+
+def test_reference_inference_uses_cycle_detrended_levels(result):
+    """A target tracking the exported station height is found after removing the common mode."""
+    from rts_forensics.investigations import investigate
+
+    series = result["series"].copy()
+    frames = result["frame_cycles"]
+    rng = np.random.default_rng(7)
+    common = 0.05 * series.cycle  # common drift shared by all targets
+    series["ver_raw"] = common + rng.normal(0, 0.3, len(series))
+    tracking = series.pid == "P-05"
+    height = series.cycle.map(frames.set_index("cycle").exported_h_mm)
+    series.loc[tracking, "ver_raw"] -= height[tracking]
+    register, _ = investigate(series, frames, result["prism_summary"], config())
+    tests = register[(register.test == "reference_inference") & (register.metric == "ver_raw")]
+    assert set(tests.detrending) == {"cycle_detrended", "time_differenced"}
+    detrended = tests[tests.detrending == "cycle_detrended"].set_index("pid")
+    assert detrended.effect_mm.idxmin() == "P-05"
+    assert detrended.loc["P-05", "effect_mm"] < -0.5
+    assert detrended.loc["P-05", "p_bonferroni"] < 0.05
+
+
+def test_pooled_repeatability_is_reported(result):
+    table = result["repeatability"].set_index("station")
+    assert {"all", "S1"} <= set(table.index)
+    # Synthetic repeats: distance noise 0.04 mm and Hz noise 0.02 arcsec per repeat.
+    assert table.loc["all", "repeat_sd_d_mm"] == pytest.approx(0.04, rel=0.15)
+    assert table.loc["all", "repeat_sd_hz_arcsec"] == pytest.approx(0.02, rel=0.25)

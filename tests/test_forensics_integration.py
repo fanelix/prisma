@@ -1,10 +1,6 @@
-import json
-import os
 import subprocess
 import sys
 from pathlib import Path
-
-import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -55,25 +51,3 @@ def test_repository_filenames_with_spaces_are_url_encoded():
     }
     exec(compile(ast.Module(body=[function], type_ignores=[]), "app/app.py", "exec"), namespace)
     assert namespace["_ambil_repo"]("HLO Sept 2026.csv").endswith("HLO%20Sept%202026.csv")
-
-
-def test_local_golden_regression():
-    data = os.environ.get("RTS_GOLDEN_DATA")
-    values = os.environ.get("RTS_GOLDEN_VALUES")
-    if not data or not values:
-        pytest.skip(
-            "Independent HLO raw/golden bundle not supplied; set RTS_GOLDEN_DATA and RTS_GOLDEN_VALUES"
-        )
-    from rts_forensics.config import load_config
-    from rts_forensics.pipeline import run
-
-    expected = json.loads(Path(values).read_text())
-    assert expected.get("checks"), "Golden JSON must supply checks and explicit tolerances"
-    result = run(data, load_config(overrides=expected.get("config", {})))
-    for check in expected["checks"]:
-        assert "tolerance" in check, "No invented golden tolerance"
-        table = result[check["table"]]
-        for column, value in check["where"].items():
-            table = table[table[column] == value]
-        assert len(table) == 1, check
-        assert table.iloc[0][check["column"]] == pytest.approx(check["expected"], abs=check["tolerance"])

@@ -28,11 +28,15 @@ The repository previously used `prismacore` to rank processed coordinates.
 Its API is retained for compatibility. Use **Raw-observation forensics** in
 the dashboard for the new handoff pipeline; legacy ranks are not equivalent.
 
-Independent `reference_code/` and `golden_values.json` were not supplied with
-this change. No claim is made that the new implementation reproduces their
-real-data findings or final class counts. Synthetic ground-truth tests verify
-rotation, translation, scale, local movement, day bias, dropouts, provenance,
-segmentation and exports. See [method and configuration](method.md).
+The owner's `golden_values.json` is committed at `tests/fixtures/` and checked
+against the tracked HLO export (`tests/test_golden_hlo.py`). Input counts,
+repeatability, the station E frame, G1, HLO-R7, lost targets and daytime-biased
+targets reproduce within stated tolerances. The final class counts and the exact
+HLO-R7 correlation do not: they come from the research scripts
+(`reference_code/`), which were not supplied. See [verification](verification.md).
+Synthetic ground-truth tests verify rotation, translation, scale, local movement,
+day bias, dropouts, provenance, segmentation and exports. See
+[method and configuration](method.md).
 
 Existing real data were already tracked in the repository. This change does
 not duplicate them or add generated field results. Keep future private data

@@ -42,14 +42,16 @@ The six forensic dashboard pages reuse the same pipeline in Streamlit/stlite.
    legacy API intact and accessible as a separately labelled legacy mode.
 6. Add packaging, lint/test/docs CI, release workflow and method/config docs.
 7. Run full suite, synthetic CLI/export/UI checks and current HLO input.
-   Missing reference_code and golden_values.json prevent a claim of golden
-   reproduction. Provide opt-in local regression with explicit tolerances.
+   `golden_values.json` is committed at `tests/fixtures/` and checked by
+   `tests/test_golden_hlo.py` with explicit tolerances. `reference_code/` was
+   not supplied, so final class counts are not claimed (strict xfail).
 8. Review, commit and push the feature branch, and open a pull request.
 
 ## Verification limits
 
 The repository already tracks a real export and results. Do not copy them into
-new fixtures or generated tracked outputs. Keep raw source bytes unchanged.
+new fixtures or generated tracked outputs; the golden test reads the export in
+place from `data/`. Keep raw source bytes unchanged.
 Existing Candrian golden tests refer to a file absent from this checkout;
 skip only when their external fixture is absent, with an explicit reason.
 No alarm or slope-safety assertion. TARP is applied only if fully supplied.

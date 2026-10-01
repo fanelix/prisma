@@ -8,7 +8,7 @@ from .cycles import assign_cycles, cycle_table
 from .displacement import prism_cycles
 from .frame import fit_frames
 from .investigations import investigate
-from .noise import estimate
+from .noise import estimate, pooled_repeatability
 from .parse import read_export
 from .rates import blocks24
 
@@ -52,6 +52,25 @@ def run(source, config=None):
         warnings.append(
             "No physical bias floor supplied: day/night effects are descriptive candidates and do not automatically exclude targets from the provisional frame. Review frame membership."
         )
+    flags = summary["flags"].fillna("")
+    for text, message in [
+        (
+            "frame-corrected vertical less precise",
+            "Frame-corrected vertical is less precise than raw for {n} target(s) (fit SE exceeds raw noise; "
+            "typically a narrow-azimuth station geometry). Interpret ver_fc for those targets with raw values.",
+        ),
+        (
+            "frame-corrected LOS less precise",
+            "Frame-corrected LOS is less precise than raw for {n} target(s); compare raw and corrected series.",
+        ),
+        (
+            "windows overlap",
+            "{n} target(s) span less than the baseline plus end windows; their net change is unavailable.",
+        ),
+    ]:
+        n = int(flags.str.contains(text, regex=False).sum())
+        if n:
+            warnings.append(message.format(n=n))
     if any(i["invalid_rows"] for i in inputs):
         warnings.append("Invalid rows are retained in observations/audit and excluded from calculations.")
     met = rows[["ppm", "pressure", "temperature", "add_const"]]
@@ -89,6 +108,7 @@ def run(source, config=None):
         "frame_cycles": frames,
         "frame_members": members,
         "noise": noise,
+        "repeatability": pooled_repeatability(rows),
         "timeseries_24h": blocks24(series),
         "event_register": events,
         "investigation_register": investigations,
