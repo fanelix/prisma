@@ -178,3 +178,69 @@ def test_installed_distribution_does_not_include_field_data():
         names = archive.getnames()
     assert not any("/data/" in n or "/hasil/" in n for n in names)
     assert any("/docs/method.md" in n for n in names)
+
+
+def test_leave_one_out_median_excludes_self_and_missing_values():
+    from rts_forensics.investigations import leave_one_out_median
+
+    out = leave_one_out_median([1.0, 2.0, np.nan, 10.0])
+    assert out[0] == pytest.approx(6.0)
+    assert out[1] == pytest.approx(5.5)
+    assert np.isnan(out[2])
+    assert out[3] == pytest.approx(1.5)
+    assert np.isnan(leave_one_out_median([4.0])).all()
+    assert np.isnan(leave_one_out_median([4.0, np.nan])).all()
+
+
+def test_pooled_repeatability_pools_degrees_of_freedom_and_wraps_hz():
+    from rts_forensics.noise import pooled_repeatability
+
+    rows = pd.DataFrame(
+        {
+            "station": ["S1"] * 5,
+            "pid": ["A", "A", "A", "B", "B"],
+            "cycle": [0, 0, 1, 0, 0],
+            "d": [100.000, 100.002, 50.0, 80.001, 80.001],
+            "hz": [359.9995, 0.0005, 10.0, 20.0, 20.0],
+            "v": [90.0, 90.0, 90.0, 90.0, 90.0],
+            "parse_error": [False] * 5,
+        }
+    )
+    table = pooled_repeatability(rows).set_index("station")
+    # Two repeat pairs pool 2 dof; the single-observation cycle contributes nothing.
+    assert table.loc["all", "dof"] == 2
+    assert table.loc["all", "repeat_sd_d_mm"] == pytest.approx(1.0)
+    # 359.9995 and 0.0005 are 3.6 arcsec apart across north, not 359.999 degrees.
+    assert table.loc["all", "repeat_sd_hz_arcsec"] == pytest.approx(np.sqrt(1.8**2 * 2 / 2))
+    assert table.loc["all", "repeat_sd_v_arcsec"] == 0
+
+
+def test_overlapping_baseline_and_end_windows_do_not_report_zero_net_change():
+    from rts_forensics.classify import summarize
+
+    ts = pd.date_range("2024-01-01", periods=30, freq="2h")
+    series = pd.DataFrame(
+        {
+            "station": "S1",
+            "pid": "P1",
+            "cycle": range(30),
+            "ts": ts,
+            "los_raw": np.linspace(0, 5, 30),
+            "ver_raw": 0.0,
+            "e": 0.0,
+            "n": 0.0,
+            "z": 0.0,
+            "baseline_d_m": 100.0,
+            "baseline_az_deg": 0.0,
+            "baseline_v_deg": 90.0,
+            "n_repeat": 1,
+            "spike_los_raw": False,
+            "night": ts.hour < 8,
+            "coord_segment": 0,
+            "source_refs": "x",
+        }
+    )
+    noise = pd.DataFrame({"station": ["S1"], "pid": ["P1"], "sigma_los_raw": [0.1], "sigma_ver_raw": [0.1]})
+    row = summarize(series, noise, load_config()).iloc[0]
+    assert np.isnan(row.net_los_raw_mm) and np.isnan(row.net_los_raw_hour_matched_mm)
+    assert "windows overlap" in row["flags"]

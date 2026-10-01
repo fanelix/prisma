@@ -39,6 +39,18 @@ def paired_bias(g, column="los_raw"):
     return float(effects.median()), float(effects.mean() - half), float(effects.mean() + half), len(effects)
 
 
+def leave_one_out_median(values):
+    """Median of the other finite values in the group, for each finite value."""
+    values = np.asarray(values, dtype=float)
+    out = np.full(len(values), np.nan)
+    finite = np.flatnonzero(np.isfinite(values))
+    if len(finite) > 1:
+        others = np.tile(values[finite], (len(finite), 1))
+        np.fill_diagonal(others, np.nan)
+        out[finite] = np.nanmedian(others, axis=1)
+    return out
+
+
 def _record(test, pid="", station="", effect=np.nan, **extra):
     return {
         "test": test,
@@ -59,6 +71,15 @@ def investigate(series, frames, summary, config):
 
     records, events = [], []
     stations = {s: f[["ts", "cycle", "night"]] for s, f in series.groupby("station")}
+    # Handoff reference inference: cycle-detrended levels. The leave-one-out cycle
+    # median removes the common mode without letting a target detrend itself.
+    common = series.groupby(["station", "cycle"])
+    series = series.assign(
+        **{
+            column + "_cycle_detrended": series[column] - common[column].transform(leave_one_out_median)
+            for column in ["ver_raw", "dhz_arcsec"]
+        }
+    )
     for (station, pid), g in series.groupby(["station", "pid"]):
         g = g.sort_values("ts")
         station_series = stations[station]
@@ -183,9 +204,24 @@ def investigate(series, frames, summary, config):
             )
         f = frames[frames.station == station]
         merged = g.merge(f[["cycle", "exported_h_mm", "orientation_shift_arcsec"]], on="cycle", how="inner")
-        for raw, control in [("ver_raw", "exported_h_mm"), ("dhz_arcsec", "orientation_shift_arcsec")]:
-            a = merged[raw].diff().to_numpy()[1:]
-            b = merged[control].diff().to_numpy()[1:]
+        for (raw, control), detrending in itertools.product(
+            [("ver_raw", "exported_h_mm"), ("dhz_arcsec", "orientation_shift_arcsec")],
+            ["cycle_detrended", "time_differenced"],
+        ):
+            if detrending == "cycle_detrended":
+                a = merged[raw + "_cycle_detrended"].to_numpy()
+                b = merged[control].to_numpy()
+                limitation = (
+                    "levels minus leave-one-out cycle median of the station's other targets; "
+                    "correlation does not identify a resection reference"
+                )
+            else:
+                a = merged[raw].diff().to_numpy()[1:]
+                b = merged[control].diff().to_numpy()[1:]
+                limitation = (
+                    "differenced robustness check; insensitive to slow co-variation such as "
+                    "subsidence; correlation does not identify a resection reference"
+                )
             ok = np.isfinite(a) & np.isfinite(b)
             rho, p = (
                 spearmanr(a[ok], b[ok])
@@ -200,12 +236,13 @@ def investigate(series, frames, summary, config):
                     rho,
                     metric=raw,
                     control_source=control,
+                    detrending=detrending,
                     effect_units="Spearman rho",
                     p_value=p,
                     p_bonferroni=min(1, p * summary[summary.station == station].shape[0] * 2)
                     if np.isfinite(p)
                     else np.nan,
-                    limitation="differenced series; correlation does not identify a resection reference",
+                    limitation=limitation,
                 )
             )
         # Source references make every investigation locatable in the export.

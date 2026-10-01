@@ -76,7 +76,7 @@ def write_results(result, directory, figures=True):
         "See prism_summary.csv, frame_members.csv and investigation_register.csv for quantitative evidence.",
         "Source provenance is in observations.csv and series.csv; no rows or spike flags were deleted.",
         "",
-        "No real-data golden reproduction is claimed without the independent reference bundle.",
+        "This report alone does not establish agreement with independent reference results.",
     ]
     (directory / "report.md").write_text("\n".join(text), encoding="utf-8")
     table = summary[

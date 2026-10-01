@@ -191,6 +191,9 @@ def render(list_repo=None, fetch_repo=None):
         _table(result["observations"].loc[result["observations"].parse_error])
         st.subheader("Cycle & repeat diagnostics")
         _table(result["cycle_table"])
+        if "repeatability" in result:
+            st.caption("Pooled within-cycle repeat SD (repeats kept as real measurements)")
+            _table(result["repeatability"])
         _table(result["noise"])
     elif page == "Station frame":
         station = st.selectbox("Station", list(summary.station.unique()))

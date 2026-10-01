@@ -76,6 +76,10 @@ def summarize(series, noise, config):
         all_station = stations[station]
         early = g[g.ts < g.ts.min() + pd.Timedelta(hours=config["baseline_hours"])]
         late = g[g.ts > g.ts.max() - pd.Timedelta(hours=config["end_hours"])]
+        # Overlapping baseline/end windows share observations, biasing net change to zero.
+        overlap = g.ts.max() - pd.Timedelta(hours=config["end_hours"]) < g.ts.min() + pd.Timedelta(
+            hours=config["baseline_hours"]
+        )
         end = all_station.ts.max()
         row = {
             "station": station,
@@ -117,12 +121,12 @@ def summarize(series, noise, config):
         for prefix, column in products:
             row["net_" + prefix + "_mm"] = (
                 late[column].median() - early[column].median()
-                if column in g and late[column].notna().any() and early[column].notna().any()
+                if column in g and not overlap and late[column].notna().any() and early[column].notna().any()
                 else np.nan
             )
             row["net_" + prefix + "_hour_matched_mm"] = (
                 hour_matched_net(g, column, config["end_hours"], config["baseline_hours"])
-                if column in g
+                if column in g and not overlap
                 else np.nan
             )
             for days, label in [(30, "30d"), (7, "7d"), (3, "72h")]:
@@ -153,7 +157,21 @@ def summarize(series, noise, config):
             row["movement_concern"] = "detected vertical (exploratory; independent verification required)"
             row["concern_basis"] = "ver_raw; atmospheric and station-frame checks required"
         row["final_class"] = row["movement_concern"]
+        for name, column in [("los_fit_se_mm", "los_frame_se_mm"), ("vertical_fit_se_mm", "ver_frame_se_mm")]:
+            row[name] = g[column].median() if column in g and g[column].notna().any() else np.nan
         flags = []
+        if overlap:
+            flags.append("baseline and end windows overlap; net change unavailable")
+        # Compares two estimates from the same data; no external threshold is introduced.
+        # A zero raw sigma (quantised MAD) is not a measured noise level, so it is not compared.
+        for label, se, sigma in [
+            ("LOS", row["los_fit_se_mm"], row["sigma_los_mm"]),
+            ("vertical", row["vertical_fit_se_mm"], row["sigma_vertical_mm"]),
+        ]:
+            if np.isfinite(se) and np.isfinite(sigma) and sigma > 0 and se > sigma:
+                flags.append(
+                    f"frame-corrected {label} less precise than raw (median fit SE exceeds raw noise)"
+                )
         if row["lost_final_48h"]:
             flags.append("no observations in final 48h; no stability inference")
         if row["spike_fraction"] > 0:
@@ -187,11 +205,6 @@ def summarize(series, noise, config):
         row["vector_e_mm"] = radial * np.sin(az) + row["net_tangential_fc_mm"] * np.cos(az)
         row["vector_n_mm"] = radial * np.cos(az) - row["net_tangential_fc_mm"] * np.sin(az)
         row["vector_z_mm"] = row["net_vertical_fc_mm"]
-        row["los_fit_se_mm"] = (
-            g.los_frame_se_mm.median()
-            if "los_frame_se_mm" in g and g.los_frame_se_mm.notna().any()
-            else np.nan
-        )
         row["source_refs"] = ";".join(g.source_refs)
         records.append(row)
     return pd.DataFrame(records)
