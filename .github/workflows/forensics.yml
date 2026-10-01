@@ -20,8 +20,8 @@ jobs:
           python-version: ${{ matrix.python }}
           cache: pip
       - run: pip install '.[dev,web]'
-      - run: ruff check rts_forensics tests/test_forensics*.py
-      - run: ruff format --check rts_forensics tests/test_forensics*.py
+      - run: ruff check rts_forensics tests/test_forensics*.py tests/test_golden_hlo.py
+      - run: ruff format --check rts_forensics tests/test_forensics*.py tests/test_golden_hlo.py
       - run: python -m pytest tests -q
       - run: mkdocs build --strict
       - run: python -m build
